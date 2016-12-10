@@ -6,10 +6,12 @@ import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.SortedIteratingSystem;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
+import com.exovum.ld37warmup.SchoolWorld;
 import com.exovum.ld37warmup.components.FontComponent;
 import com.exovum.ld37warmup.components.TextureComponent;
 import com.exovum.ld37warmup.components.TransformComponent;
@@ -19,9 +21,13 @@ import java.util.Comparator;
 public class FontSystem extends SortedIteratingSystem {
 
     static final float PPM = 16.0f;
-    static final float FRUSTUM_WIDTH = 40f;//Gdx.graphics.getWidth()/PPM;//37.5f;
-    static final float FRUSTUM_HEIGHT = 30f;//Gdx.graphics.getHeight()/PPM;//.0f;
+    static final float FRUSTUM_WIDTH = Gdx.graphics.getWidth(); //
+        // SchoolWorld.WORLD_WIDTH; //40f;//400f;//Gdx.graphics.getWidth()/PPM;//37.5f;
+    static final float FRUSTUM_HEIGHT = Gdx.graphics.getHeight();
+        // SchoolWorld.WORLD_HEIGHT; // 30f;//300f;//Gdx.graphics.getHeight()/PPM;//.0f;
 
+    private final float RATIO_WIDTH = Gdx.graphics.getWidth() / SchoolWorld.WORLD_WIDTH;
+    private final float RATIO_HEIGHT = Gdx.graphics.getHeight() / SchoolWorld.WORLD_HEIGHT;
     public static final float PIXELS_TO_METRES = 1.0f / PPM;
 
     private static Vector2 meterDimensions = new Vector2();
@@ -98,9 +104,23 @@ public class FontSystem extends SortedIteratingSystem {
 
             //Gdx.app.log("FontSystem", "Starting fontQueue rendering");
 
+            // rendering issue may be tied to an issue with the GlyphLayout?
+            //  - nope. it's still too large
+            // - it could be because the rendering is not being scaled based on PixelsToMeters
+            //      like RenderingSystem does. going to try scaling the width and height of
+            // Glyph Layout
             // center the text around TransformComponent position
-            font.font.draw(batch, font.glyph, t.position.x - glyph.width / 2,
-                    t.position.y - glyph.height / 2);
+
+            // scale the width and height of the GlyphLayout based on PixelsToMeters
+            //font.glyph.width = PixelsToMeters(font.glyph.width) / 40;
+            //font.glyph.height = PixelsToMeters(font.glyph.height) / 40;
+            //font.font.draw(batch, "Hello World", t.position.x, t.position.y);
+            // the 10 * (pos) is used to scale the Font position/scaling to match RenderingSystem
+            // RATIO_WIDTH and RATIO_HEIGHT scale the FontSystem to match the
+            //      world rendering. FontSystem uses the Graphics width/height and
+            //      RenderingSystem uses the World width/height which is approx 40x30.
+            font.font.draw(batch, font.glyph, (RATIO_WIDTH * t.position.x - glyph.width / 2),
+                    (RATIO_HEIGHT* t.position.y - glyph.height / 2));
         }
 
         batch.end();

@@ -43,6 +43,8 @@ public class Assets {
 
         // add some fonts
         am.load("fonts/sitka-medium.fnt", BitmapFont.class);
+        am.load("fonts/candara12.fnt", BitmapFont.class);
+        am.load("fonts/candara20.fnt", BitmapFont.class);
 
         // Setup static resources
         // TODO add this resources to the AssetManager
@@ -114,6 +116,19 @@ public class Assets {
         Gdx.app.log("Assets", "Retrieving medium sitka font");
         if(am.isLoaded("fonts/sitka-medium.fnt"))
             return am.get("fonts/sitka-medium.fnt", BitmapFont.class);
+        else
+            return null;
+    }
+
+    /**
+     * Retrieves the requested BitmapFont fontname from the AssetManager
+     * @param fontname Name of font to retrieve. Only say "candara20.fnt" without the directory name
+     * @return BitmapFont for the requested @fontname
+     */
+    public static BitmapFont getFont(String fontname) {
+        Gdx.app.log("Assets", "Retrieving font by name " + fontname);
+        if(am.isLoaded("fonts/" + fontname))
+            return am.get("fonts/" + fontname, BitmapFont.class);
         else
             return null;
     }

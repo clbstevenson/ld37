@@ -39,7 +39,9 @@ public class SchoolWorld {
 
         generateSchool(WORLD_WIDTH / 2, WORLD_HEIGHT - SchoolComponent.HEIGHT);
 
-        generateText("A Simple Text", WORLD_WIDTH / 2, WORLD_HEIGHT - SchoolComponent.HEIGHT); //10f, 10f);
+        generateText("A Simple Text", 10f, 10f);//WORLD_WIDTH / 2, WORLD_HEIGHT - SchoolComponent.HEIGHT);
+
+
         // addChild();
         // removeChild();
         // updateChild();
@@ -53,7 +55,31 @@ public class SchoolWorld {
         FontComponent font = engine.createComponent(FontComponent.class);
         TransformComponent position = engine.createComponent(TransformComponent.class);
 
-        font.font = Assets.getMediumFont();
+        //TODO: fix font rendering scaling: its too big!
+        // font.font = Assets.getMediumFont();
+        font.font = Assets.getFont("candara12.fnt");
+        font.glyph = new GlyphLayout();
+        font.glyph.setText(font.font, text);
+
+        position.position.set(x, y, 2.0f); //TODO compare z-value with School's z-value
+
+        //Remembering to add the components to the entity is a good idea
+        e.add(font);
+        e.add(position);
+
+        engine.addEntity(e);
+    }
+
+    private void generateTextWithFont(String text, float x, float y, String fontname) {
+        Gdx.app.log("School World", "Generating font text entity");
+        Entity e = engine.createEntity();
+
+        FontComponent font = engine.createComponent(FontComponent.class);
+        TransformComponent position = engine.createComponent(TransformComponent.class);
+
+        //TODO: fix font rendering scaling: its too big!
+        // font.font = Assets.getMediumFont();
+        font.font = Assets.getFont(fontname);
         font.glyph = new GlyphLayout();
         font.glyph.setText(font.font, text);
 
