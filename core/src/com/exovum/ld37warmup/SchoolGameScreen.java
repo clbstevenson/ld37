@@ -12,6 +12,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
 import com.exovum.ld37warmup.systems.AnimationSystem;
+import com.exovum.ld37warmup.systems.FontSystem;
 import com.exovum.ld37warmup.systems.PhysicsDebugSystem;
 import com.exovum.ld37warmup.systems.PhysicsSystem;
 import com.exovum.ld37warmup.systems.RenderingSystem;
@@ -62,6 +63,7 @@ public class SchoolGameScreen extends ScreenAdapter {
         // create ECS system to process rendering
         RenderingSystem renderingSystem = new RenderingSystem(batch);
         engine.addSystem(renderingSystem);
+        engine.addSystem(new FontSystem(batch));
         engine.addSystem(new AnimationSystem());
         // add ECS system to process physics in the Box2D world
         engine.addSystem(new PhysicsSystem(world));

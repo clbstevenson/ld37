@@ -16,7 +16,7 @@ import com.exovum.ld37warmup.components.TransformComponent;
 
 import java.util.Comparator;
 
-public class RenderingSystem extends SortedIteratingSystem {
+public class FontSystem extends SortedIteratingSystem {
 
     static final float PPM = 16.0f;
     static final float FRUSTUM_WIDTH = 40f;//Gdx.graphics.getWidth()/PPM;//37.5f;
@@ -46,18 +46,18 @@ public class RenderingSystem extends SortedIteratingSystem {
     private Comparator<Entity> comparator;
     private OrthographicCamera cam;
 
-    private ComponentMapper<TextureComponent> textureM;
     private ComponentMapper<TransformComponent> transformM;
+    private ComponentMapper<FontComponent> fontM;
 
-    public RenderingSystem(SpriteBatch batch) {
-        super(Family.all(TransformComponent.class, TextureComponent.class).get(), new ZComparator());
+    public FontSystem(SpriteBatch batch) {
+        super(Family.all(TransformComponent.class, FontComponent.class).get(), new ZComparator());
 
-        textureM = ComponentMapper.getFor(TextureComponent.class);
         transformM = ComponentMapper.getFor(TransformComponent.class);
+        fontM = ComponentMapper.getFor(FontComponent.class);
 
-        renderQueue = new Array<Entity>();
+        renderQueue = new Array<>();
 
-        // Add a comparator so the queue.sort doesn't crash *crosses fingers*
+        // CONFIRMED: Add a comparator so the queue.sort doesn't crash *crosses fingers*
 
         comparator = new Comparator<Entity>() {
             @Override
@@ -84,27 +84,23 @@ public class RenderingSystem extends SortedIteratingSystem {
         batch.enableBlending();
         batch.begin();
 
-        for (Entity entity : renderQueue) {
-            TextureComponent tex = textureM.get(entity);
+        for(Entity entity: renderQueue) {
+            // Every font will have FontCP and TransformCP
+            // FontComponent has a BitmapFont and GlyphLayout
+            FontComponent font = fontM.get(entity);
             TransformComponent t = transformM.get(entity);
-
-            if (tex.region == null || t.isHidden) {
+            if(font == null) {
                 continue;
             }
+            GlyphLayout glyph = font.glyph;
+            if(font.font == null || glyph == null || t.isHidden)
+                continue;
 
+            //Gdx.app.log("FontSystem", "Starting fontQueue rendering");
 
-            float width = tex.region.getRegionWidth();
-            float height = tex.region.getRegionHeight();
-
-            float originX = width/2f;
-            float originY = height/2f;
-
-            batch.draw(tex.region,
-                    t.position.x - originX, t.position.y - originY,
-                    originX, originY,
-                    width, height,
-                    PixelsToMeters(t.scale.x), PixelsToMeters(t.scale.y),
-                    t.rotation);
+            // center the text around TransformComponent position
+            font.font.draw(batch, font.glyph, t.position.x - glyph.width / 2,
+                    t.position.y - glyph.height / 2);
         }
 
         batch.end();
@@ -114,6 +110,7 @@ public class RenderingSystem extends SortedIteratingSystem {
     @Override
     public void processEntity(Entity entity, float deltaTime) {
         renderQueue.add(entity);
+        // remember to add entity to font queue so they can actually render
     }
 
     public OrthographicCamera getCamera() {
