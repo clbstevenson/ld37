@@ -34,6 +34,7 @@ public class GameTexturePacker {
         // pack the images
         settings.combineSubdirectories = true;
         TexturePacker.process(settings, INPUT_DIR, OUTPUT_DIR, PACK_FILE);
+        TexturePacker.process(settings, SPRITES_INPUT_DIR, SPRITES_OUTPUT_DIR, SPRITES_PACK_FILE);
     }
 }
 

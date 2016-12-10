@@ -27,10 +27,14 @@ public class LD37Game extends Game {
         am = Assets.load();
         batch = new SpriteBatch();
         screenDispatcher = new ScreenDispatcherWarmup();
+        // loading screen to make sure assets are loaded
         Screen splashScreen = new SplashScreenWarmup(batch, screenDispatcher);
         Screen gameScreen = new GameScreenWarmup(this, batch, screenDispatcher);
+        Screen schoolScreen = new SchoolGameScreen(this, batch, screenDispatcher);
         screenDispatcher.AddScreen(splashScreen);
-        screenDispatcher.AddScreen(gameScreen);
+        // Old GameScreen
+        // screenDispatcher.AddScreen(gameScreen);
+        screenDispatcher.AddScreen(schoolScreen);
         setScreen(splashScreen);
     }
 

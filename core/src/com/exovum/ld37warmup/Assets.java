@@ -31,14 +31,19 @@ public class Assets {
         am = new AssetManager();
         // Load all of the assets via am.load(asset_to_load, asset_class_type) [Texture.class, etc]
         // load the animations atlas to reference and find the connected animations
+        // add the TextureAtlas of sprites used in Animations to the AssetManager
         am.load(ANIMATION_ATLAS, TEXTURE_ATLAS);
         am.load("sounds/explosion-1.wav", SOUND);
         am.load("sounds/drop.wav", SOUND);
         am.load("sounds/song1.wav", MUSIC);
 
+        // add the TextureAtlas of static sprites to the AssetManager
+        am.load(SPRITES_ATLAS, TEXTURE_ATLAS);
+
         // Setup static resources
         // TODO add this resources to the AssetManager
         if(am.isLoaded(ANIMATION_ATLAS)) {
+            // This code is never reached because Assets.load is called once.
             Gdx.app.log("Assets", "Setting up tree Animations manually");
             treeNormal = new Animation(1f/8f, getTreeNormalArray(), Animation.PlayMode.LOOP);
             treeLights = new Animation(1f/8f, getTreeLightsArray(), Animation.PlayMode.LOOP);
@@ -51,6 +56,7 @@ public class Assets {
     // when including new assets to load
     private static final String FONT = "";
     private static final String ANIMATION_ATLAS = "animations/animations.atlas";
+    private static final String SPRITES_ATLAS = "sprites/sprites.atlas";
 
     private static Class<TextureAtlas> TEXTURE_ATLAS = TextureAtlas.class;
     private static Class<Sound> SOUND = Sound.class;
@@ -92,5 +98,11 @@ public class Assets {
     public static Animation getTreeLightsAnimation() {
 
         return new Animation(1f/8f, getTreeLightsArray(), Animation.PlayMode.LOOP);
+    }
+
+    public static TextureRegion getSchoolSprite() {
+        Gdx.app.log("Assets", "Retrieving school sprite");
+        // find in the Sprite atlas the sprite tagged as "schoolhouse"
+        return am.get(SPRITES_ATLAS, TEXTURE_ATLAS).findRegion("schoolhouse");
     }
 }
