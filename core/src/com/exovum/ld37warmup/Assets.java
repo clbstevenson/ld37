@@ -43,8 +43,9 @@ public class Assets {
 
         // add some fonts
         am.load("fonts/sitka-medium.fnt", BitmapFont.class);
-        am.load("fonts/candara12.fnt", BitmapFont.class);
-        am.load("fonts/candara20.fnt", BitmapFont.class);
+        am.load("fonts/candara12.fnt", BitmapFont.class); // 12 font
+        am.load("fonts/candara20.fnt", BitmapFont.class); // 20 font
+        am.load("fonts/candara36b.fnt", BitmapFont.class); //36 BOLD font
 
         // Setup static resources
         // TODO add this resources to the AssetManager
@@ -131,5 +132,13 @@ public class Assets {
             return am.get("fonts/" + fontname, BitmapFont.class);
         else
             return null;
+    }
+
+    public static Animation getBookByName(String bookname) {
+        Gdx.app.log("Assets", "Retrieving book by name " + bookname);
+        if(am.isLoaded(ANIMATION_ATLAS, TEXTURE_ATLAS))
+            return new Animation(1/16f, am.get(ANIMATION_ATLAS, TEXTURE_ATLAS).findRegion("books/" + bookname));
+        else
+            return null; // AnimationAtlas isn't loaded yet
     }
 }

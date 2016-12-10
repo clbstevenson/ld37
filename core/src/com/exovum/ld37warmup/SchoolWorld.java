@@ -37,8 +37,10 @@ public class SchoolWorld {
     public void create() {
         this.state = State.RUNNING;
 
-        generateSchool(WORLD_WIDTH / 2, WORLD_HEIGHT - SchoolComponent.HEIGHT);
+        generateSchool(WORLD_WIDTH / 2, WORLD_HEIGHT - SchoolComponent.HEIGHT / 4);
 
+        generateTextWithFont("One Room Schoolhouse", WORLD_WIDTH / 2, WORLD_HEIGHT,
+                "candara36b.fnt");
         generateText("A Simple Text", 10f, 10f);//WORLD_WIDTH / 2, WORLD_HEIGHT - SchoolComponent.HEIGHT);
 
 
