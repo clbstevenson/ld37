@@ -9,9 +9,12 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 /**
  * Created by exovu_000 on 12/3/2016.
+ *
+ * Ludum Dare 37 - Jam
+ * Theme: One Room
  */
 
-public class LD37Warmup extends Game {
+public class LD37Game extends Game {
 
     SpriteBatch batch;
     AssetManager am;

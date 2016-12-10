@@ -32,7 +32,7 @@ import com.exovum.ld37warmup.systems.UselessStateSwapSystem;
 
 public class GameScreenWarmup extends ScreenAdapter {
 
-    Game game; // Might need this defined as LD37Warmup Game instead
+    Game game; // Might need this defined as LD37Game Game instead
 
     private boolean initialized;
     private float elapsedTime = 0f;
