@@ -107,7 +107,7 @@ public class Assets {
     public static TextureRegion getSchoolSprite() {
         Gdx.app.log("Assets", "Retrieving school sprite");
         // find in the Sprite atlas the sprite tagged as "schoolhouse"
-        return am.get(SPRITES_ATLAS, TEXTURE_ATLAS).findRegion("schoolhouse");
+        return am.get(SPRITES_ATLAS, TEXTURE_ATLAS).findRegion("schoolhouse-2");
     }
 
     public static BitmapFont getMediumFont() {
