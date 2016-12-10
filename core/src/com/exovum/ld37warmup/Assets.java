@@ -6,6 +6,7 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.Array;
@@ -39,6 +40,9 @@ public class Assets {
 
         // add the TextureAtlas of static sprites to the AssetManager
         am.load(SPRITES_ATLAS, TEXTURE_ATLAS);
+
+        // add some fonts
+        am.load("fonts/sitka-medium.fnt", BitmapFont.class);
 
         // Setup static resources
         // TODO add this resources to the AssetManager
@@ -104,5 +108,13 @@ public class Assets {
         Gdx.app.log("Assets", "Retrieving school sprite");
         // find in the Sprite atlas the sprite tagged as "schoolhouse"
         return am.get(SPRITES_ATLAS, TEXTURE_ATLAS).findRegion("schoolhouse");
+    }
+
+    public static BitmapFont getMediumFont() {
+        Gdx.app.log("Assets", "Retrieving medium sitka font");
+        if(am.isLoaded("fonts/sitka-medium.fnt"))
+            return am.get("fonts/sitka-medium.fnt", BitmapFont.class);
+        else
+            return null;
     }
 }

@@ -2,6 +2,10 @@ package com.exovum.ld37warmup;
 
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.PooledEngine;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.graphics.g3d.utils.BaseAnimationController;
+import com.exovum.ld37warmup.components.FontComponent;
+import com.exovum.ld37warmup.components.SchoolComponent;
 import com.exovum.ld37warmup.components.StateComponent;
 import com.exovum.ld37warmup.components.TextureComponent;
 import com.exovum.ld37warmup.components.TransformComponent;
@@ -31,11 +35,27 @@ public class SchoolWorld {
     public void create() {
         this.state = State.RUNNING;
 
-        generateSchool(WORLD_WIDTH / 2, WORLD_HEIGHT / 2);
+        generateSchool(WORLD_WIDTH / 2, 0);
+
+        generateText("A Simple Text", WORLD_WIDTH / 2, WORLD_HEIGHT / 2);
         // addChild();
         // removeChild();
         // updateChild();
         // generateUI();
+    }
+
+    private void generateText(String text, float x, float y) {
+        Entity e = engine.createEntity();
+
+        FontComponent font = engine.createComponent(FontComponent.class);
+        TransformComponent position = engine.createComponent(TransformComponent.class);
+
+        font.font = Assets.getMediumFont();
+        font.glyph = new GlyphLayout(font.font, text);
+
+        position.position.set(x, y, 2.0f); //TODO compare z-value with School's z-value
+
+        engine.addEntity(e);
     }
 
     /**
@@ -56,7 +76,7 @@ public class SchoolWorld {
 
         texture.region = Assets.getSchoolSprite();
 
-        position.position.set(x, y, 1.0f); // does a lower z-value mean closer or farther?
+        position.position.set(x - SchoolComponent.WIDTH, y, 1.0f); // does a lower z-value mean closer or farther?
         position.scale.set(0.5f, 0.5f);
 
         state.set(SchoolComponent.STATE_NORMAL);

@@ -6,9 +6,11 @@ import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.SortedIteratingSystem;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
+import com.exovum.ld37warmup.components.FontComponent;
 import com.exovum.ld37warmup.components.TextureComponent;
 import com.exovum.ld37warmup.components.TransformComponent;
 
@@ -41,11 +43,13 @@ public class RenderingSystem extends SortedIteratingSystem {
 
     private SpriteBatch batch;
     private Array<Entity> renderQueue;
+    private Array<Entity> fontQueue;
     private Comparator<Entity> comparator;
     private OrthographicCamera cam;
 
     private ComponentMapper<TextureComponent> textureM;
     private ComponentMapper<TransformComponent> transformM;
+    private ComponentMapper<FontComponent> fontM;
 
     public RenderingSystem(SpriteBatch batch) {
         super(Family.all(TransformComponent.class, TextureComponent.class).get(), new ZComparator());
@@ -54,6 +58,7 @@ public class RenderingSystem extends SortedIteratingSystem {
         transformM = ComponentMapper.getFor(TransformComponent.class);
 
         renderQueue = new Array<Entity>();
+        fontQueue = new Array<>();
 
         // Add a comparator so the queue.sort doesn't crash *crosses fingers*
 
@@ -76,6 +81,7 @@ public class RenderingSystem extends SortedIteratingSystem {
         super.update(deltaTime);
 
         renderQueue.sort(comparator);
+        fontQueue.sort(comparator);
 
         cam.update();
         batch.setProjectionMatrix(cam.combined);
@@ -103,6 +109,20 @@ public class RenderingSystem extends SortedIteratingSystem {
                     width, height,
                     PixelsToMeters(t.scale.x), PixelsToMeters(t.scale.y),
                     t.rotation);
+        }
+
+        for(Entity entity: fontQueue) {
+            // Every font will have FontCP and TransformCP
+            // FontComponent has a BitmapFont and GlyphLayout
+            FontComponent font = fontM.get(entity);
+            TransformComponent t = transformM.get(entity);
+            GlyphLayout glyph = font.glyph;
+            if(font.font == null || glyph == null || t.isHidden)
+                continue;
+
+            // center the text around TransformComponent position
+            font.font.draw(batch, font.glyph, t.position.x - glyph.width / 2,
+                    t.position.y - glyph.height / 2);
         }
 
         batch.end();

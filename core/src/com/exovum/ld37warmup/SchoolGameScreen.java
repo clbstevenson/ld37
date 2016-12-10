@@ -5,6 +5,9 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
@@ -26,6 +29,7 @@ public class SchoolGameScreen extends ScreenAdapter {
     private float elapsedTime = 0f;
     private World world; // Box2D World
 
+    OrthographicCamera camera;
     private SchoolWorld gameWorld; // DONE: change this game world - changed to SchoolWorld
 
     private PooledEngine engine; // Ashley ECS engine
@@ -33,6 +37,10 @@ public class SchoolGameScreen extends ScreenAdapter {
     private SpriteBatch batch;
     private IScreenDispatcher dispatcher; // TODO change this simple screen switcher or don't use it
 
+    // font related items. glyphlayout makes it easier to draw and center fonts and other stuff probably
+    // Font rendering should be processed as FontComponent so the ECS RenderingSystem can grab it
+    private BitmapFont mediumFont;
+    private GlyphLayout glyphLayout;
 
     // TODO add InputListener
 
@@ -65,6 +73,12 @@ public class SchoolGameScreen extends ScreenAdapter {
         // DONE: changed to school world
         gameWorld.create();
 
+        camera = engine.getSystem(RenderingSystem.class).getCamera();
+
+        // load fonts
+        //mediumFont = Assets.getMediumFont();
+        glyphLayout = new GlyphLayout();
+
         // set initialized if everything else was a success
         initialized = true;
     }
@@ -73,6 +87,12 @@ public class SchoolGameScreen extends ScreenAdapter {
         engine.update(delta);
 
         elapsedTime += delta;
+
+        // Use a FontComponent to render text. It will be processed by RenderingSystem
+        //glyphLayout.setText(Assets.getMediumFont(), "Time: " + elapsedTime);
+        //mediumFont.draw(batch, glyphLayout, )
+        //Assets.getMediumFont().draw(batch, glyphLayout, camera.position.x - glyphLayout.width / 2,
+        //        camera.viewportHeight / 2);
         // can trigger stuff based on elapsedTime [children etc]
     }
 
