@@ -8,7 +8,7 @@
 	<inherits name='libgdx-utils-box2d' />
 	<inherits name='libgdx-utils' />
 
-    <inherits name='com.roaringcatgames.testgame.GdxDefinition' />
+    <inherits name='com.exovum.testgame.GdxDefinition' />
     
     <collapse-all-properties />
     

@@ -1,7 +1,6 @@
 package com.exovum.ld37warmup;
 
 import com.badlogic.gdx.Screen;
-import com.exovum.testgame.IScreenDispatcher;
 
 import java.util.ArrayList;
 

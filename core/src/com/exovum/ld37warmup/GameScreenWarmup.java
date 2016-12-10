@@ -25,7 +25,6 @@ import com.exovum.ld37warmup.systems.PhysicsDebugSystem;
 import com.exovum.ld37warmup.systems.PhysicsSystem;
 import com.exovum.ld37warmup.systems.RenderingSystem;
 import com.exovum.ld37warmup.systems.UselessStateSwapSystem;
-import com.exovum.testgame.IScreenDispatcher;
 
 /**
  * Created by exovu_000 on 12/3/2016.

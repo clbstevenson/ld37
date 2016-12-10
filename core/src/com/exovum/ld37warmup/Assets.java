@@ -59,7 +59,7 @@ public class Assets {
     public static TextureRegion splashScreen;
 
     private static void loadSplash() {
-        splashScreen = new TextureRegion(new Texture("ld37-bg.png"));
+        splashScreen = new TextureRegion(new Texture("ld37-bg-2.jpg"));//"ld37-bg.png"));
     }
 
     public static Array<TextureAtlas.AtlasRegion> getBallArray() {
