@@ -135,10 +135,20 @@ public class Assets {
     }
 
     public static Animation getBookByName(String bookname) {
-        Gdx.app.log("Assets", "Retrieving book by name " + bookname);
+        Gdx.app.log("Assets", "Retrieving book by name for " + bookname);
         if(am.isLoaded(ANIMATION_ATLAS, TEXTURE_ATLAS))
             return new Animation(1/16f, am.get(ANIMATION_ATLAS, TEXTURE_ATLAS).findRegion("books/" + bookname));
         else
             return null; // AnimationAtlas isn't loaded yet
     }
+
+    public static Animation getHeldBookByName(String bookname) {
+        Gdx.app.log("Assets", "Retrieving book single frame animation by name for " + bookname);
+        if(am.isLoaded(ANIMATION_ATLAS, TEXTURE_ATLAS))
+            return new Animation(1f, am.get(ANIMATION_ATLAS, TEXTURE_ATLAS).findRegion("books/held/" + bookname));
+            //return new Animation(1/16f, am.get(ANIMATION_ATLAS, TEXTURE_ATLAS).findRegion("books/" + bookname));
+        else
+            return null; // AnimationAtlas isn't loaded yet
+    }
+
 }

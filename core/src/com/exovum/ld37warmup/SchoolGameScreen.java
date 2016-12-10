@@ -3,6 +3,7 @@ package com.exovum.ld37warmup;
 import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -81,12 +82,16 @@ public class SchoolGameScreen extends ScreenAdapter {
         //mediumFont = Assets.getMediumFont();
         glyphLayout = new GlyphLayout();
 
+        InputMultiplexer multiplexer = new InputMultiplexer();
+        multiplexer.addProcessor(new SchoolInput(camera, gameWorld));
+
         // set initialized if everything else was a success
         initialized = true;
     }
 
     private void update(float delta) {
         engine.update(delta);
+        gameWorld.update(delta);
 
         elapsedTime += delta;
 

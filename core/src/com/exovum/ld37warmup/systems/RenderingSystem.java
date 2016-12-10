@@ -10,6 +10,8 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 import com.exovum.ld37warmup.components.FontComponent;
 import com.exovum.ld37warmup.components.TextureComponent;
 import com.exovum.ld37warmup.components.TransformComponent;

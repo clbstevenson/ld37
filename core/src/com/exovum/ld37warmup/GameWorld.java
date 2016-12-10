@@ -55,8 +55,8 @@ public class GameWorld {
 
         animation.animations.put(TreeComponent.STATE_NORMAL, Assets.getTreeNormalAnimation());
         animation.animations.put(TreeComponent.STATE_LIGHTS, Assets.getTreeLightsAnimation());
-        //animation.animations.put(TreeComponent.STATE_NORMAL, Assets.treeNormal);
-        //animation.animations.put(TreeComponent.STATE_LIGHTS, Assets.treeLights);
+        //animation.animations.put(TreeComponent.STATE_THROWN, Assets.treeNormal);
+        //animation.animations.put(TreeComponent.STATE_CAUGHT, Assets.treeLights);
 
         // TODO use TreeComponent.width and TreeComponent.height for Bounds
         position.position.set(x, y, 3.0f);
