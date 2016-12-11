@@ -8,6 +8,6 @@ import com.badlogic.ashley.core.Component;
 public class BookComponent implements Component{
     public static final String STATE_THROWN = "THROWN"; //"TREE_NORMAL";
     public static final String STATE_CAUGHT = "CAUGHT"; //"TREE_LIGHTS";
-    public static final float WIDTH = 2f;
-    public static final float HEIGHT = 3f;
+    public static final float WIDTH = 3f;
+    public static final float HEIGHT = 4f;
 }

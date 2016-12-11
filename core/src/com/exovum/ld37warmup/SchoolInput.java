@@ -26,6 +26,15 @@ public class SchoolInput extends InputAdapter {
     }
 
     @Override
+    public boolean keyDown (int keycode) {
+        if(keycode == Input.Keys.ESCAPE) {
+            // exit please
+            return true;
+        }
+        return false;
+    }
+
+    @Override
     public boolean touchDown(int x, int y, int pointer, int button) {
 
         camera.unproject(touch.set(x, y, 0));

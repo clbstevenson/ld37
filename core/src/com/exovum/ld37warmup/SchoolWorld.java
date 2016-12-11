@@ -38,7 +38,7 @@ public class SchoolWorld {
         RUNNING, PAUSED, GAMEOVER, GAMEWON, UPGRADE
     }
     enum BookTitle {
-        QUIXOTE, MOCKINGBIRD, GATSBY, IDIOT, WATCH;
+        QUIXOTE, MOCKINGBIRD, WATCH; // TODO: make larger 128x128 images for: GATSBY, IDIOT;
 
         public String getAssetName() {
             switch (this) {
@@ -46,12 +46,14 @@ public class SchoolWorld {
                     return "donq";
                 case MOCKINGBIRD:
                     return "mock";
+                case WATCH:
+                    return "watch";
+                /*
                 case GATSBY:
                     return "gatsby";
                 case IDIOT:
                     return "idiot";
-                case WATCH:
-                    return "watch";
+                    */
                 default:
                     return null;
             }
@@ -69,12 +71,14 @@ public class SchoolWorld {
                     return "\'Don Quixote\' by Miguel de Cervantes";
                 case MOCKINGBIRD:
                     return "'To Kill a Mockingbird' by Harper Lee";
+                case WATCH:
+                    return "'Their Eyes Were Watching God' by Zora Neale Hurston";
+                /*
                 case GATSBY:
                     return "'The Great Gatsby' by F. Scott Fitzgerald";
                 case IDIOT:
                     return "'The Idiot' by Fyodor Dostoevsky";
-                case WATCH:
-                    return "'Their Eyes Were Watching God' by Zora Neale Hurston";
+                */
                 default:
                     return "NO QUOTE";
             }
@@ -325,7 +329,7 @@ public class SchoolWorld {
 
         // TODO use BookComponent.width and BookComponent.height for Bounds -> and BodyComponent
         position.position.set(fromX, fromY, 3.0f);
-        position.scale.set(1.5f, 1.5f); // TODO: check if scaling is OK
+        position.scale.set(0.5f, 0.5f); // TODO: check if scaling is OK
 
         BodyDef bodyDef = new BodyDef();
         bodyDef.type = BodyDef.BodyType.KinematicBody;
@@ -337,8 +341,10 @@ public class SchoolWorld {
         //apply impulse
 
         PolygonShape bodyShape = new PolygonShape();
-        bodyShape.setAsBox(BookComponent.WIDTH / 2 / PIXELS_TO_METERS,
-                BookComponent.HEIGHT / 2 / PIXELS_TO_METERS);
+        bodyShape.setAsBox(BookComponent.WIDTH / 3, BookComponent.HEIGHT / 3);
+        //bodyShape.setAsBox(128 / PIXELS_TO_METERS, 128 / PIXELS_TO_METERS);
+        //bodyShape.setAsBox(BookComponent.WIDTH * 2 / PIXELS_TO_METERS,
+        //        BookComponent.HEIGHT * 2 / PIXELS_TO_METERS);
         //bodyShape.setRadius(BookComponent.WIDTH / 2 / PIXELS_TO_METERS);
 
         FixtureDef fixtureDef = new FixtureDef();
