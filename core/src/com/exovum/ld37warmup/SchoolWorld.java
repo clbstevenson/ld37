@@ -12,7 +12,6 @@ import com.exovum.ld37warmup.components.SchoolComponent;
 import com.exovum.ld37warmup.components.StateComponent;
 import com.exovum.ld37warmup.components.TextureComponent;
 import com.exovum.ld37warmup.components.TransformComponent;
-import com.exovum.ld37warmup.components.TreeComponent;
 import com.exovum.ld37warmup.systems.RenderingSystem;
 
 import java.util.Random;
@@ -34,13 +33,14 @@ public class SchoolWorld {
     enum State {
         RUNNING, PAUSED, GAMEOVER, GAMEWON, UPGRADE
     }
+
     State state;
 
     enum BookTitle {
         QUIXOTE, MOCKINGBIRD, GATSBY, IDIOT;
 
         public String getAssetName() {
-            switch(this) {
+            switch (this) {
                 case QUIXOTE:
                     return "donq";
                 case MOCKINGBIRD:
@@ -56,11 +56,12 @@ public class SchoolWorld {
 
         /**
          * Generate a random quote for the BookTitle
+         *
          * @return Text for a random quote from the book
          */
         public String getRandomQuote() {
             // TODO: add quotes
-            switch(this) {
+            switch (this) {
                 case QUIXOTE:
                     return "\'Don Quixote\' by Miguel de Cervantes";
                 case MOCKINGBIRD:
@@ -79,6 +80,7 @@ public class SchoolWorld {
     public static final float WORLD_HEIGHT = 30f; // TODO: TBD. Check with RenderingSystem
 
     PooledEngine engine;
+    Entity school;
 
     public SchoolWorld(PooledEngine engine) {
         this.engine = engine;
@@ -88,7 +90,7 @@ public class SchoolWorld {
     public void create() {
         this.state = State.RUNNING;
 
-        generateSchool(WORLD_WIDTH / 2, WORLD_HEIGHT - SchoolComponent.HEIGHT * 3 / 4);
+        school = generateSchool(WORLD_WIDTH / 2, WORLD_HEIGHT - SchoolComponent.HEIGHT * 3 / 4);
 
         generateTextWithFont("One Room Schoolhouse", WORLD_WIDTH / 2, WORLD_HEIGHT,
                 "candara36b.fnt");
@@ -102,6 +104,7 @@ public class SchoolWorld {
     }
 
     public void update(float delta) {
+        Gdx.app.log("School World", "Updating school world and cooldowns");
         cooldown -= delta;
     }
 
@@ -151,10 +154,11 @@ public class SchoolWorld {
 
     /**
      * Creates a new School entity centered around @param x and @param y
+     *
      * @param x horizontal value of center point for the school
      * @param y vertical value of center point for the school
      */
-    private void generateSchool(float x, float y) {
+    private Entity generateSchool(float x, float y) {
         Entity e = engine.createEntity();
 
         // make it a school entity
@@ -172,7 +176,9 @@ public class SchoolWorld {
         float scaleY = SchoolComponent.HEIGHT / (RenderingSystem.PixelsToMeters(texture.region.getRegionHeight()));
 
         //position.position.set(x - SchoolComponent.WIDTH, y, 1.0f);
-        position.position.set(x, y, 1.0f); // does a lower z-value mean closer or farther?
+        position.position.set(x, y, 10.0f); // does a lower z-value mean closer or farther?
+                                            // I believe low z-values means closer to the "top"
+                                            // so high-z values will appear UNDER low-z values
         position.scale.set(scaleX, scaleY);  //0.75f, 0.5f);
         //position.scale.set(0.5f, 0.5f);
 
@@ -184,16 +190,19 @@ public class SchoolWorld {
         e.add(state);
 
         engine.addEntity(e);
+
+        return e;
     }
 
     /**
      * Create a Book entity aimed at (x,y)
+     *
      * @param x x-value of target position
      * @param y y-value of target position
      */
     public void throwBook(float x, float y) {
         Gdx.app.log("School World", "Starting to throw book");
-        if(cooldown < 0) {
+        if (cooldown < 0) {
             // get a value from [0, number of booktitles ) excluding end point
 
             Entity e = engine.getEntitiesFor(Family.all(SchoolComponent.class).get()).first();
@@ -201,7 +210,12 @@ public class SchoolWorld {
             //createBook(random.nextInt(BookTitle.values().length), engine.getEntitiesFor(Family.all(SchoolComponent.)), y);
             //TODO: change the x and y values. they spawn where they are clicked.
             // they should start at the schoolhouse and move towards point (x,y) instead.
-            createBook(random.nextInt(BookTitle.values().length), x, y);
+            //createBook(random.nextInt(BookTitle.values().length), x, y);
+            //                                                  fromX, fromY, toX, toY);
+            // start throwing the book from the position of the SchoolComponent
+            createBook(random.nextInt(BookTitle.values().length),
+                    school.getComponent(TransformComponent.class).position.x,
+                    school.getComponent(TransformComponent.class).position.y, x, y);
             //reset the cooldown timer
             cooldown = 1000;
         }
@@ -213,6 +227,7 @@ public class SchoolWorld {
 
     /**
      * Creates a new Book entity
+     *
      * @param bookid enum BookTitle for the new book
      */
     private void createBook(int bookid, float x, float y) {
@@ -247,4 +262,44 @@ public class SchoolWorld {
         engine.addEntity(e);
     }
 
+    /**
+     * Creates a new Book entity from (fromX, fromY) aiming for (toX, toY)
+     *
+     * @param bookid  enum BookTitle for the new book
+     * @param fromX  x-value of the starting location for the book
+     * @param fromY  y-value of the starting location for the book
+     * @param toX x-value for the position the book is aimed
+     * @param toY y-value for the position the book is aimed
+     */
+    private void createBook(int bookid, float fromX, float fromY, float toX, float toY) {
+        Entity e = new Entity(); // OR engine.creatEntity(); not sure which is better
+
+        BookComponent book = engine.createComponent(BookComponent.class);
+        AnimationComponent animation = engine.createComponent(AnimationComponent.class);
+        StateComponent state = engine.createComponent(StateComponent.class);
+        TextureComponent texture = engine.createComponent(TextureComponent.class);
+        TransformComponent position = engine.createComponent(TransformComponent.class);
+        //TODO: add BodyComponent for collisions
+
+        BookTitle title = getBookTitleByID(bookid);
+
+        animation.animations.put(BookComponent.STATE_THROWN, Assets.getBookByName(title.getAssetName()));
+        animation.animations.put(BookComponent.STATE_CAUGHT, Assets.getHeldBookByName(title.getAssetName()));
+        //animation.animations.put(TreeComponent.STATE_THROWN, Assets.treeNormal);
+        //animation.animations.put(TreeComponent.STATE_CAUGHT, Assets.treeLights);
+
+        // TODO use BookComponent.width and BookComponent.height for Bounds -> and BodyComponent
+        position.position.set(fromX, fromY, 3.0f);
+        position.scale.set(0.5f, 0.5f); // TODO: check if scaling is OK
+
+        state.set(BookComponent.STATE_THROWN);
+
+        e.add(book);
+        e.add(animation);
+        e.add(state);
+        e.add(texture);
+        e.add(position);
+
+        engine.addEntity(e);
+    }
 }

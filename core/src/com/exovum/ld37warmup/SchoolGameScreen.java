@@ -82,8 +82,12 @@ public class SchoolGameScreen extends ScreenAdapter {
         //mediumFont = Assets.getMediumFont();
         glyphLayout = new GlyphLayout();
 
+        // Create all input devices
         InputMultiplexer multiplexer = new InputMultiplexer();
         multiplexer.addProcessor(new SchoolInput(camera, gameWorld));
+        // Set Gdx.input to track all the created input handlers
+        Gdx.input.setInputProcessor(multiplexer);
+
 
         // set initialized if everything else was a success
         initialized = true;
