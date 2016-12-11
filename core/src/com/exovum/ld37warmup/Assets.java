@@ -135,7 +135,7 @@ public class Assets {
     }
 
     public static Animation getBookByName(String bookname) {
-        Gdx.app.log("Assets", "Retrieving book by name: " + bookname);
+        //Gdx.app.log("Assets", "Retrieving book by name: " + bookname);
         if(am.isLoaded(ANIMATION_ATLAS, TEXTURE_ATLAS))
             return new Animation(1/16f, am.get(ANIMATION_ATLAS, TEXTURE_ATLAS).findRegion("books/" +
                     bookname + "-b"));//, Animation.PlayMode.LOOP);
@@ -144,7 +144,7 @@ public class Assets {
     }
 
     public static Animation getHeldBookByName(String bookname) {
-        Gdx.app.log("Assets", "Retrieving book single frame animation by name: " + bookname);
+        //Gdx.app.log("Assets", "Retrieving book single frame animation by name: " + bookname);
         if(am.isLoaded(ANIMATION_ATLAS, TEXTURE_ATLAS))
             return new Animation(1f, am.get(ANIMATION_ATLAS, TEXTURE_ATLAS).findRegion("books/held/" +
                     bookname + "-b"));//, Animation.PlayMode.LOOP);
@@ -160,7 +160,7 @@ public class Assets {
      * @return Animation containing textures for child with @id
      */
     public static Animation getChildAnimationByName(String name) {
-        Gdx.app.log("Assets", "Retrieving child animation frame by name: " + name);
+        //Gdx.app.log("Assets", "Retrieving child animation frame by name: " + name);
         if(am.isLoaded(ANIMATION_ATLAS, TEXTURE_ATLAS))
             // Using findRegions instead of findRegion
             // If the animation has only 1 image, it should behave the same as findRegion, right?
