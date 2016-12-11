@@ -91,15 +91,32 @@ public class BookComponent implements Component{
 
     private static void loadQuotes() {
         Array<String> addQuotes = new Array<>();
+        //TODO add more quotes
+
         // Adding BookTitle.MOCKING quotes
-        quotes.put(BookTitle.MOCKING, getQuotesMocking());
+        addQuotes.addAll("People generally see what they look for, and hear what they listen for.",
+                "The one thing that doesn't abide by majority rule is a person's conscience.",
+                "Until you climb inside of his skin and walk around in it.",
+                "I think there's just one kind of folks. Folks.");
+        quotes.put(BookTitle.MOCKING, addQuotes);
+        //quotes.put(BookTitle.MOCKING, getQuotesMocking());
         addQuotes.clear();
+
         // Adding BookTitle.WATCH quotes
-        addQuotes.addAll("Tea Cake is so fiiiine.", "I can fix that.");
+        addQuotes.addAll("Tea Cake is so fiiine.",
+                "Some people could look at a mud puddle and see an ocean with ships.",
+                "There are years that ask questions and years that answer.",
+                "De way you looked at me when Ah said whut Ah did. Yo’ face skeered me so bad till mah whiskers drawed up.",
+                "If you kin see de light at daybreak, you don't keer if you die at dusk.");
         quotes.put(BookTitle.WATCH, addQuotes);
         addQuotes.clear();
+
         // Adding BookTitle.QUIXOTE quotes
-        addQuotes.addAll("En tus marcas", "Si se puede!");
+        addQuotes.addAll("There is no book so bad...that it does not have something good in it.",
+                "Finally, from so little sleeping and so much reading, his brain dried up and he went completely out of his mind.",
+                "Thou hast seen nothing yet.",
+                "Hunger is the best sauce in the world.",
+                "What man can pretend to know the riddle of a woman's mind?");
         quotes.put(BookTitle.QUIXOTE, addQuotes);
         addQuotes.clear();
     }

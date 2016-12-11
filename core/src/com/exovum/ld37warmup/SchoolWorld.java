@@ -287,7 +287,7 @@ public class SchoolWorld {
         position.scale.set(0.5f, 0.5f); // TODO: check if scaling is OK
 
         BodyDef bodyDef = new BodyDef();
-        bodyDef.type = BodyDef.BodyType.KinematicBody;
+        bodyDef.type = BodyDef.BodyType.DynamicBody;
         bodyDef.position.set(fromX, fromY);
         //bodyDef.position.set((fromX + texture.region.getRegionWidth()/2) / PIXELS_TO_METERS,
         //        (fromY + texture.region.getRegionHeight()/2) / PIXELS_TO_METERS);
@@ -296,7 +296,7 @@ public class SchoolWorld {
         //apply impulse
 
         PolygonShape bodyShape = new PolygonShape();
-        bodyShape.setAsBox(BookComponent.WIDTH / 3, BookComponent.HEIGHT / 3);
+        bodyShape.setAsBox(BookComponent.WIDTH * 0.25f, BookComponent.HEIGHT * 0.3f);
         //bodyShape.setAsBox(128 / PIXELS_TO_METERS, 128 / PIXELS_TO_METERS);
         //bodyShape.setAsBox(BookComponent.WIDTH * 2 / PIXELS_TO_METERS,
         //        BookComponent.HEIGHT * 2 / PIXELS_TO_METERS);
@@ -340,7 +340,13 @@ public class SchoolWorld {
 
         float speed = 10;
         body.body.setLinearVelocity(direction.scl(speed));
-        body.body.applyForce(10f, 10f, fromX, fromY, true);//applyTorque(0.4f, true);
+        //body.body.applyForce(10f, 10f, fromX + 10, fromY + 10, true);//applyTorque(0.4f, true);
+
+        if(distX > 0) {
+            body.body.setAngularVelocity(-5f);
+        } else {
+            body.body.setAngularVelocity(5f);
+        }
 
 
         body.body.createFixture(fixtureDef);
