@@ -59,7 +59,7 @@ public class SchoolGameScreen extends ScreenAdapter {
         world = new World(new Vector2(0f, 0f), true);
         engine = new PooledEngine();
         // DONE: change this game world - changed to School World
-        gameWorld = new SchoolWorld(engine);
+        gameWorld = new SchoolWorld(engine, world);
 
         // create ECS system to process rendering
         RenderingSystem renderingSystem = new RenderingSystem(batch);

@@ -5,7 +5,15 @@ import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.CircleShape;
+import com.badlogic.gdx.physics.box2d.FixtureDef;
+import com.badlogic.gdx.physics.box2d.PolygonShape;
+import com.badlogic.gdx.physics.box2d.Shape;
+import com.badlogic.gdx.physics.box2d.World;
 import com.exovum.ld37warmup.components.AnimationComponent;
+import com.exovum.ld37warmup.components.BodyComponent;
 import com.exovum.ld37warmup.components.BookComponent;
 import com.exovum.ld37warmup.components.FontComponent;
 import com.exovum.ld37warmup.components.SchoolComponent;
@@ -21,11 +29,7 @@ import java.util.Random;
  */
 
 public class SchoolWorld {
-    // Cooldown timer for controlling events such as throwing books
-    // TODO: array of cooldown timers?
-    private float cooldown;
 
-    private Random random;
 
     // PS: Use an abstract World class next time that supplies the base info
     // connecting SchoolWorld and GameWorld together for simplification
@@ -33,11 +37,8 @@ public class SchoolWorld {
     enum State {
         RUNNING, PAUSED, GAMEOVER, GAMEWON, UPGRADE
     }
-
-    State state;
-
     enum BookTitle {
-        QUIXOTE, MOCKINGBIRD, GATSBY, IDIOT;
+        QUIXOTE, MOCKINGBIRD, GATSBY, IDIOT, WATCH;
 
         public String getAssetName() {
             switch (this) {
@@ -49,6 +50,8 @@ public class SchoolWorld {
                     return "gatsby";
                 case IDIOT:
                     return "idiot";
+                case WATCH:
+                    return "watch";
                 default:
                     return null;
             }
@@ -70,11 +73,22 @@ public class SchoolWorld {
                     return "'The Great Gatsby' by F. Scott Fitzgerald";
                 case IDIOT:
                     return "'The Idiot' by Fyodor Dostoevsky";
+                case WATCH:
+                    return "'Their Eyes Were Watching God' by Zora Neale Hurston";
                 default:
                     return "NO QUOTE";
             }
         }
     }
+    // Cooldown timer for controlling events such as throwing books
+    // TODO: array of cooldown timers?
+    private float cooldown;
+    private Random random;
+
+    State state;
+
+    World physicsWorld;
+    final float PIXELS_TO_METERS = 16f;
 
     public static final float WORLD_WIDTH = 40f; // TODO: To Be Determined. Check with RenderingSystem
     public static final float WORLD_HEIGHT = 30f; // TODO: TBD. Check with RenderingSystem
@@ -82,13 +96,17 @@ public class SchoolWorld {
     PooledEngine engine;
     Entity school;
 
-    public SchoolWorld(PooledEngine engine) {
+    public SchoolWorld(PooledEngine engine, World world) {
         this.engine = engine;
+        this.physicsWorld = world;
         random = new Random();
     }
 
     public void create() {
         this.state = State.RUNNING;
+
+        // initially create a
+        //physicsWorld = new World(new Vector2(0f, 0f), true);
 
         school = generateSchool(WORLD_WIDTH / 2, WORLD_HEIGHT - SchoolComponent.HEIGHT * 3 / 4);
 
@@ -104,8 +122,11 @@ public class SchoolWorld {
     }
 
     public void update(float delta) {
-        Gdx.app.log("School World", "Updating school world and cooldowns");
+        //Gdx.app.log("School World", "Updating school world and cooldowns");
+        // '1' cooldown = 1 second. so don't set cooldown to 1000
         cooldown -= delta;
+
+        //Gdx.app.log("School World", "Updating School World. cooldown: " + cooldown);
     }
 
     private void generateText(String text, float x, float y) {
@@ -201,11 +222,14 @@ public class SchoolWorld {
      * @param y y-value of target position
      */
     public void throwBook(float x, float y) {
-        Gdx.app.log("School World", "Starting to throw book");
         if (cooldown < 0) {
+            Gdx.app.log("School World", "Starting to throw book");
+
             // get a value from [0, number of booktitles ) excluding end point
 
-            Entity e = engine.getEntitiesFor(Family.all(SchoolComponent.class).get()).first();
+            //TODO
+            //Entity e = engine.getEntitiesFor(Family.all(SchoolComponent.class).get()).first();
+
             //if(e == null || e.getComponents().
             //createBook(random.nextInt(BookTitle.values().length), engine.getEntitiesFor(Family.all(SchoolComponent.)), y);
             //TODO: change the x and y values. they spawn where they are clicked.
@@ -217,7 +241,7 @@ public class SchoolWorld {
                     school.getComponent(TransformComponent.class).position.x,
                     school.getComponent(TransformComponent.class).position.y, x, y);
             //reset the cooldown timer
-            cooldown = 1000;
+            cooldown = 1;
         }
     }
 
@@ -238,7 +262,7 @@ public class SchoolWorld {
         StateComponent state = engine.createComponent(StateComponent.class);
         TextureComponent texture = engine.createComponent(TextureComponent.class);
         TransformComponent position = engine.createComponent(TransformComponent.class);
-        //TODO: add BodyComponent for collisisions
+
 
         BookTitle title = getBookTitleByID(bookid);
 
@@ -252,6 +276,8 @@ public class SchoolWorld {
         position.scale.set(0.5f, 0.5f);
 
         state.set(BookComponent.STATE_THROWN);
+
+
 
         e.add(book);
         e.add(animation);
@@ -280,25 +306,75 @@ public class SchoolWorld {
         TextureComponent texture = engine.createComponent(TextureComponent.class);
         TransformComponent position = engine.createComponent(TransformComponent.class);
         //TODO: add BodyComponent for collisions
+        BodyComponent body = new BodyComponent();
 
         BookTitle title = getBookTitleByID(bookid);
 
+        state.set(BookComponent.STATE_THROWN);
+
         animation.animations.put(BookComponent.STATE_THROWN, Assets.getBookByName(title.getAssetName()));
         animation.animations.put(BookComponent.STATE_CAUGHT, Assets.getHeldBookByName(title.getAssetName()));
+        texture.region = animation.animations.get(state.get()).getKeyFrame(0f);
         //animation.animations.put(TreeComponent.STATE_THROWN, Assets.treeNormal);
         //animation.animations.put(TreeComponent.STATE_CAUGHT, Assets.treeLights);
 
         // TODO use BookComponent.width and BookComponent.height for Bounds -> and BodyComponent
         position.position.set(fromX, fromY, 3.0f);
-        position.scale.set(0.5f, 0.5f); // TODO: check if scaling is OK
+        position.scale.set(1f, 1f); // TODO: check if scaling is OK
 
-        state.set(BookComponent.STATE_THROWN);
+        BodyDef bodyDef = new BodyDef();
+        bodyDef.type = BodyDef.BodyType.DynamicBody;
+        bodyDef.position.set(fromX, fromY);
+        //bodyDef.position.set((fromX + texture.region.getRegionWidth()/2) / PIXELS_TO_METERS,
+        //        (fromY + texture.region.getRegionHeight()/2) / PIXELS_TO_METERS);
+
+        body.body = physicsWorld.createBody(bodyDef);
+        //apply impulse
+
+        PolygonShape bodyShape = new PolygonShape();
+        bodyShape.setAsBox(BookComponent.WIDTH / 2 / PIXELS_TO_METERS,
+                BookComponent.HEIGHT / 2 / PIXELS_TO_METERS);
+        //bodyShape.setRadius(BookComponent.WIDTH / 2 / PIXELS_TO_METERS);
+
+        FixtureDef fixtureDef = new FixtureDef();
+        fixtureDef.shape = bodyShape;
+        fixtureDef.density = 1f;
+        fixtureDef.friction = 0.4f;
+        fixtureDef.restitution = 0.6f;
+
+        // calculate force needed to push object from (fromX, fromY) to (toX, toY);
+        double distance = Math.sqrt( (Math.pow(toX - fromX, 2)) + (Math.pow(toY - fromY, 2)) );
+        // distance from (fromX, fromY) to (toX, toY)
+        float distX = toX - fromX;
+        float distY = toY - fromY;
+        // time for the book to travel from point to point
+        float time = 1f; // 1 second?
+        // Final velocity values
+        float velXf = 5f;
+        float velYf = 5f;
+        // solve for initial velocities: Vi = (d/t * 2) - Vf
+        float velXi =  (distX / time * 2) - velXf;
+        float velYi = (distY / time * 2) - velYf;
+        float mass2 = (BookComponent.WIDTH / 2 /PIXELS_TO_METERS) *
+                (BookComponent.HEIGHT /2 /PIXELS_TO_METERS)* fixtureDef.density;
+        float mass = 0f;//5f;
+        // impulse = mass * velocity [x and y accordingly]
+        // Apply the calculated Impulses
+        Gdx.app.log("School World", "Applying impulse to new book");
+        //body.body.applyLinearImpulse(mass2 * velXi, mass2 * velYi, fromX, fromY, true);
+        body.body.setLinearVelocity(velXi, velYi);
+        //body.body.applyForceToCenter(0f, -10f, true);
+
+        body.body.createFixture(fixtureDef);
+        bodyShape.dispose();
 
         e.add(book);
         e.add(animation);
         e.add(state);
         e.add(texture);
         e.add(position);
+        e.add(body);
+
 
         engine.addEntity(e);
     }

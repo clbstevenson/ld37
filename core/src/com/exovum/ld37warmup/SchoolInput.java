@@ -31,7 +31,11 @@ public class SchoolInput extends InputAdapter {
 
         if(button == Input.Buttons.LEFT) {
             world.throwBook(touch.x, touch.y);
+            return true;
         }
+        //if(button == Input.Buttons.RIGHT) {
+            //world.create();
+        //}
 
         return false;
     }
