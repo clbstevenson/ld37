@@ -138,7 +138,7 @@ public class Assets {
         Gdx.app.log("Assets", "Retrieving book by name: " + bookname);
         if(am.isLoaded(ANIMATION_ATLAS, TEXTURE_ATLAS))
             return new Animation(1/16f, am.get(ANIMATION_ATLAS, TEXTURE_ATLAS).findRegion("books/" +
-                    bookname + "-b"));
+                    bookname + "-b"));//, Animation.PlayMode.LOOP);
         else
             return null; // AnimationAtlas isn't loaded yet
     }
@@ -147,7 +147,7 @@ public class Assets {
         Gdx.app.log("Assets", "Retrieving book single frame animation by name: " + bookname);
         if(am.isLoaded(ANIMATION_ATLAS, TEXTURE_ATLAS))
             return new Animation(1f, am.get(ANIMATION_ATLAS, TEXTURE_ATLAS).findRegion("books/held/" +
-                    bookname + "-b"));
+                    bookname + "-b"));//, Animation.PlayMode.LOOP);
             //return new Animation(1/16f, am.get(ANIMATION_ATLAS, TEXTURE_ATLAS).findRegion("books/" + bookname));
         else
             return null; // AnimationAtlas isn't loaded yet

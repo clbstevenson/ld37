@@ -14,12 +14,7 @@ import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
-import com.exovum.ld37warmup.components.BodyComponent;
-import com.exovum.ld37warmup.components.TransformComponent;
-import com.exovum.ld37warmup.components.TreeComponent;
-import com.exovum.ld37warmup.components.AnimationComponent;
-import com.exovum.ld37warmup.components.StateComponent;
-import com.exovum.ld37warmup.components.TextureComponent;
+import com.exovum.ld37warmup.components.*;
 import com.exovum.ld37warmup.systems.AnimationSystem;
 import com.exovum.ld37warmup.systems.PhysicsDebugSystem;
 import com.exovum.ld37warmup.systems.PhysicsSystem;
@@ -441,7 +436,7 @@ public class GameScreenWarmup extends ScreenAdapter {
     private Entity buildBall(World world) {
         // TODO buildBall
         Entity e = engine.createEntity();
-        e.add(new BallComponent());
+        e.add(new com.exovum.ld37warmup.components.BallComponent());
 
         AnimationComponent a = new AnimationComponent();
         a.animations.put("DEFAULT", new Animation(1f/16f, Assets.getBallArray(), Animation.PlayMode.LOOP));

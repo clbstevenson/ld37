@@ -4,6 +4,7 @@ import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
+import com.badlogic.gdx.Gdx;
 import com.exovum.ld37warmup.components.StateComponent;
 import com.exovum.ld37warmup.components.AnimationComponent;
 import com.exovum.ld37warmup.components.TextureComponent;
@@ -31,6 +32,7 @@ public class AnimationSystem extends IteratingSystem {
         StateComponent state = sm.get(entity);
 
         if(ani.animations.containsKey(state.get())){
+            //Gdx.app.log("Animation System", "Updating Animation/Texture frame");
             TextureComponent tex = tm.get(entity);
             tex.region = ani.animations.get(state.get()).getKeyFrame(state.time, state.isLooping);
         }

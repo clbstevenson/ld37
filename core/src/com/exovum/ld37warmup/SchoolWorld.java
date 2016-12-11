@@ -15,6 +15,7 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.exovum.ld37warmup.components.AnimationComponent;
 import com.exovum.ld37warmup.components.BodyComponent;
 import com.exovum.ld37warmup.components.BookComponent;
+import com.exovum.ld37warmup.components.BookComponent.BookTitle;
 import com.exovum.ld37warmup.components.FontComponent;
 import com.exovum.ld37warmup.components.SchoolComponent;
 import com.exovum.ld37warmup.components.StateComponent;
@@ -23,6 +24,8 @@ import com.exovum.ld37warmup.components.TransformComponent;
 import com.exovum.ld37warmup.systems.RenderingSystem;
 
 import java.util.Random;
+
+import static com.exovum.ld37warmup.components.BookComponent.BookTitle.getBookTitleByID;
 
 /**
  * Created by exovu_000 on 12/9/2016.
@@ -37,53 +40,7 @@ public class SchoolWorld {
     enum State {
         RUNNING, PAUSED, GAMEOVER, GAMEWON, UPGRADE
     }
-    enum BookTitle {
-        QUIXOTE, MOCKINGBIRD, WATCH; // TODO: make larger 128x128 images for: GATSBY, IDIOT;
 
-        public String getAssetName() {
-            switch (this) {
-                case QUIXOTE:
-                    return "donq";
-                case MOCKINGBIRD:
-                    return "mock";
-                case WATCH:
-                    return "watch";
-                /*
-                case GATSBY:
-                    return "gatsby";
-                case IDIOT:
-                    return "idiot";
-                    */
-                default:
-                    return null;
-            }
-        }
-
-        /**
-         * Generate a random quote for the BookTitle
-         *
-         * @return Text for a random quote from the book
-         */
-        public String getRandomQuote() {
-            // TODO: add quotes
-            switch (this) {
-                case QUIXOTE:
-                    return "\'Don Quixote\' by Miguel de Cervantes";
-                case MOCKINGBIRD:
-                    return "'To Kill a Mockingbird' by Harper Lee";
-                case WATCH:
-                    return "'Their Eyes Were Watching God' by Zora Neale Hurston";
-                /*
-                case GATSBY:
-                    return "'The Great Gatsby' by F. Scott Fitzgerald";
-                case IDIOT:
-                    return "'The Idiot' by Fyodor Dostoevsky";
-                */
-                default:
-                    return "NO QUOTE";
-            }
-        }
-    }
     // Cooldown timer for controlling events such as throwing books
     // TODO: array of cooldown timers?
     private float cooldown;
@@ -116,6 +73,8 @@ public class SchoolWorld {
 
         generateTextWithFont("One Room Schoolhouse", WORLD_WIDTH / 2, WORLD_HEIGHT,
                 "candara36b.fnt");
+        generateTextWithFont(BookComponent.getRandomQuote(BookTitle.MOCKING, random),
+                WORLD_WIDTH / 2, WORLD_HEIGHT / 4, "candara20.fnt");
         generateText("A Simple Text", 10f, 10f);//WORLD_WIDTH / 2, WORLD_HEIGHT - SchoolComponent.HEIGHT);
 
 
@@ -251,10 +210,6 @@ public class SchoolWorld {
         }
     }
 
-    private BookTitle getBookTitleByID(int bookid) {
-        return BookTitle.values()[bookid];
-    }
-
     /**
      * Creates a new Book entity
      *
@@ -320,7 +275,7 @@ public class SchoolWorld {
 
         animation.animations.put(BookComponent.STATE_THROWN, Assets.getBookByName(title.getAssetName()));
         animation.animations.put(BookComponent.STATE_CAUGHT, Assets.getHeldBookByName(title.getAssetName()));
-        texture.region = animation.animations.get(state.get()).getKeyFrame(0f);
+        //texture.region = animation.animations.get(state.get()).getKeyFrame(0f);
         if(toX < fromX) {
             //toX
         }
@@ -371,8 +326,8 @@ public class SchoolWorld {
         float mass = 0f;//5f;
         // impulse = mass * velocity [x and y accordingly]
         // Apply the calculated Impulses
-        Gdx.app.log("School World", "Applying impulse to new book. From (" + fromX + ", " + fromY +
-                ") To (" + toX + ", " + toY + ")");
+        //Gdx.app.log("School World", "Applying impulse to new book. From (" + fromX + ", " + fromY +
+        //        ") To (" + toX + ", " + toY + ")");
         //body.body.applyLinearImpulse(mass2 * velXi, mass2 * velYi, fromX, fromY, true);
         // Setting linear veolicity based on velXi and velYi is not centering the book correctly. WIP
         //body.body.setLinearVelocity(velXi,velYi);
@@ -385,6 +340,8 @@ public class SchoolWorld {
 
         float speed = 10;
         body.body.setLinearVelocity(direction.scl(speed));
+        body.body.applyForce(10f, 10f, fromX, fromY, true);//applyTorque(0.4f, true);
+
 
         body.body.createFixture(fixtureDef);
         bodyShape.dispose();
