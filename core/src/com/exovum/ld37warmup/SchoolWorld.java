@@ -240,7 +240,8 @@ public class SchoolWorld {
             createBook(random.nextInt(BookTitle.values().length),
                     school.getComponent(TransformComponent.class).position.x,
                     school.getComponent(TransformComponent.class).position.y,
-                    x / PIXELS_TO_METERS, WORLD_HEIGHT - (y / PIXELS_TO_METERS));
+                    x, y);
+                    //x / PIXELS_TO_METERS, WORLD_HEIGHT - (y / PIXELS_TO_METERS));
             //reset the cooldown timer
             cooldown = 1;
         }
@@ -324,10 +325,10 @@ public class SchoolWorld {
 
         // TODO use BookComponent.width and BookComponent.height for Bounds -> and BodyComponent
         position.position.set(fromX, fromY, 3.0f);
-        position.scale.set(1f, 1f); // TODO: check if scaling is OK
+        position.scale.set(1.5f, 1.5f); // TODO: check if scaling is OK
 
         BodyDef bodyDef = new BodyDef();
-        bodyDef.type = BodyDef.BodyType.DynamicBody;
+        bodyDef.type = BodyDef.BodyType.KinematicBody;
         bodyDef.position.set(fromX, fromY);
         //bodyDef.position.set((fromX + texture.region.getRegionWidth()/2) / PIXELS_TO_METERS,
         //        (fromY + texture.region.getRegionHeight()/2) / PIXELS_TO_METERS);
@@ -357,8 +358,8 @@ public class SchoolWorld {
         float velXf = 5f;
         float velYf = 5f;
         // solve for initial velocities: Vi = (d/t * 2) - Vf
-        float velXi =  (distX / time * 2) - velXf;
-        float velYi = (distY / time * 2) - velYf;
+        float velXi =  (distX / time) - velXf;
+        float velYi = (distY / time) - velYf;
         float mass2 = (BookComponent.WIDTH / 2 /PIXELS_TO_METERS) *
                 (BookComponent.HEIGHT /2 /PIXELS_TO_METERS)* fixtureDef.density;
         float mass = 0f;//5f;
@@ -368,9 +369,16 @@ public class SchoolWorld {
                 ") To (" + toX + ", " + toY + ")");
         //body.body.applyLinearImpulse(mass2 * velXi, mass2 * velYi, fromX, fromY, true);
         // Setting linear veolicity based on velXi and velYi is not centering the book correctly. WIP
-        body.body.setLinearVelocity(-20f, 0f);
+        //body.body.setLinearVelocity(velXi,velYi);
         //body.body.setLinearVelocity(velXi, velYi);
         //body.body.applyForceToCenter(0f, -10f, true);
+
+        Vector2 direction = new Vector2(toX, toY);
+        direction.sub(body.body.getPosition());
+        direction.nor();
+
+        float speed = 10;
+        body.body.setLinearVelocity(direction.scl(speed));
 
         body.body.createFixture(fixtureDef);
         bodyShape.dispose();

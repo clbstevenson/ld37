@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
 /**
@@ -27,11 +28,13 @@ public class SchoolInput extends InputAdapter {
     @Override
     public boolean touchDown(int x, int y, int pointer, int button) {
 
-        //camera.unproject(touch);
+        camera.unproject(touch.set(x, y, 0));
 
         if(button == Input.Buttons.LEFT) {
+            //Vector2 direction = new Vector2(touch.x, touch.y);
+            //world.throwBook(direction);
             //world.throwBook(touch.x, touch.y);
-            world.throwBook(x, y);
+            world.throwBook(touch.x, touch.y);
             return true;
         }
         //if(button == Input.Buttons.RIGHT) {
