@@ -116,7 +116,9 @@ public class BookComponent implements Component{
                 "Finally, from so little sleeping and so much reading, his brain dried up and he went completely out of his mind.",
                 "Thou hast seen nothing yet.",
                 "Hunger is the best sauce in the world.",
-                "What man can pretend to know the riddle of a woman's mind?");
+                "What man can pretend to know the riddle of a woman's mind?",
+                "Wit and humor do not reside in slow minds",
+                "Do you see over yonder, friend Sancho, thirty or forty hulking giants? I intend to do battle with them and slay them.");
         quotes.put(BookTitle.QUIXOTE, addQuotes);
         addQuotes.clear();
     }
