@@ -239,7 +239,8 @@ public class SchoolWorld {
             // start throwing the book from the position of the SchoolComponent
             createBook(random.nextInt(BookTitle.values().length),
                     school.getComponent(TransformComponent.class).position.x,
-                    school.getComponent(TransformComponent.class).position.y, x, y);
+                    school.getComponent(TransformComponent.class).position.y,
+                    x / PIXELS_TO_METERS, WORLD_HEIGHT - (y / PIXELS_TO_METERS));
             //reset the cooldown timer
             cooldown = 1;
         }
@@ -315,6 +316,9 @@ public class SchoolWorld {
         animation.animations.put(BookComponent.STATE_THROWN, Assets.getBookByName(title.getAssetName()));
         animation.animations.put(BookComponent.STATE_CAUGHT, Assets.getHeldBookByName(title.getAssetName()));
         texture.region = animation.animations.get(state.get()).getKeyFrame(0f);
+        if(toX < fromX) {
+            //toX
+        }
         //animation.animations.put(TreeComponent.STATE_THROWN, Assets.treeNormal);
         //animation.animations.put(TreeComponent.STATE_CAUGHT, Assets.treeLights);
 
@@ -360,9 +364,12 @@ public class SchoolWorld {
         float mass = 0f;//5f;
         // impulse = mass * velocity [x and y accordingly]
         // Apply the calculated Impulses
-        Gdx.app.log("School World", "Applying impulse to new book");
+        Gdx.app.log("School World", "Applying impulse to new book. From (" + fromX + ", " + fromY +
+                ") To (" + toX + ", " + toY + ")");
         //body.body.applyLinearImpulse(mass2 * velXi, mass2 * velYi, fromX, fromY, true);
-        body.body.setLinearVelocity(velXi, velYi);
+        // Setting linear veolicity based on velXi and velYi is not centering the book correctly. WIP
+        body.body.setLinearVelocity(-20f, 0f);
+        //body.body.setLinearVelocity(velXi, velYi);
         //body.body.applyForceToCenter(0f, -10f, true);
 
         body.body.createFixture(fixtureDef);

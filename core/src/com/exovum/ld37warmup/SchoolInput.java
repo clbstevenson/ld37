@@ -27,10 +27,11 @@ public class SchoolInput extends InputAdapter {
     @Override
     public boolean touchDown(int x, int y, int pointer, int button) {
 
-        camera.unproject(touch);
+        //camera.unproject(touch);
 
         if(button == Input.Buttons.LEFT) {
-            world.throwBook(touch.x, touch.y);
+            //world.throwBook(touch.x, touch.y);
+            world.throwBook(x, y);
             return true;
         }
         //if(button == Input.Buttons.RIGHT) {
