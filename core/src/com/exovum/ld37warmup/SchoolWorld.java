@@ -1,7 +1,6 @@
 package com.exovum.ld37warmup;
 
 import com.badlogic.ashley.core.Entity;
-import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
@@ -10,12 +9,12 @@ import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
-import com.badlogic.gdx.physics.box2d.Shape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.exovum.ld37warmup.components.AnimationComponent;
 import com.exovum.ld37warmup.components.BodyComponent;
 import com.exovum.ld37warmup.components.BookComponent;
 import com.exovum.ld37warmup.components.BookComponent.BookTitle;
+import com.exovum.ld37warmup.components.ChildComponent;
 import com.exovum.ld37warmup.components.FontComponent;
 import com.exovum.ld37warmup.components.SchoolComponent;
 import com.exovum.ld37warmup.components.StateComponent;
@@ -43,7 +42,7 @@ public class SchoolWorld {
 
     // Cooldown timer for controlling events such as throwing books
     // TODO: array of cooldown timers?
-    private float cooldown;
+    private float cooldown, childCooldown;
     private Random random;
 
     State state;
@@ -88,7 +87,13 @@ public class SchoolWorld {
         //Gdx.app.log("School World", "Updating school world and cooldowns");
         // '1' cooldown = 1 second. so don't set cooldown to 1000
         cooldown -= delta;
+        childCooldown -= delta;
 
+        // create a new child every 0.5 seconds?
+        if(childCooldown < 0) {
+            createChild();
+            childCooldown = 1f;
+        }
         //Gdx.app.log("School World", "Updating School World. cooldown: " + cooldown);
     }
 
@@ -211,45 +216,6 @@ public class SchoolWorld {
     }
 
     /**
-     * Creates a new Book entity
-     *
-     * @param bookid enum BookTitle for the new book
-     */
-    private void createBook(int bookid, float x, float y) {
-        Entity e = new Entity(); // OR engine.creatEntity(); not sure which is better
-
-        BookComponent book = engine.createComponent(BookComponent.class);
-        AnimationComponent animation = engine.createComponent(AnimationComponent.class);
-        StateComponent state = engine.createComponent(StateComponent.class);
-        TextureComponent texture = engine.createComponent(TextureComponent.class);
-        TransformComponent position = engine.createComponent(TransformComponent.class);
-
-
-        BookTitle title = getBookTitleByID(bookid);
-
-        animation.animations.put(BookComponent.STATE_THROWN, Assets.getBookByName(title.getAssetName()));
-        animation.animations.put(BookComponent.STATE_CAUGHT, Assets.getHeldBookByName(title.getAssetName()));
-        //animation.animations.put(TreeComponent.STATE_THROWN, Assets.treeNormal);
-        //animation.animations.put(TreeComponent.STATE_CAUGHT, Assets.treeLights);
-
-        // TODO use BookComponent.width and BookComponent.height for Bounds -> and BodyComponent
-        position.position.set(x, y, 3.0f);
-        position.scale.set(0.5f, 0.5f);
-
-        state.set(BookComponent.STATE_THROWN);
-
-
-
-        e.add(book);
-        e.add(animation);
-        e.add(state);
-        e.add(texture);
-        e.add(position);
-
-        engine.addEntity(e);
-    }
-
-    /**
      * Creates a new Book entity from (fromX, fromY) aiming for (toX, toY)
      *
      * @param bookid  enum BookTitle for the new book
@@ -359,6 +325,80 @@ public class SchoolWorld {
         e.add(position);
         e.add(body);
 
+
+        engine.addEntity(e);
+    }
+
+    /**
+     * Creates a new Child entity. It can spawn either from the left or right
+     */
+    private void createChild() {
+        Entity e = new Entity(); // OR engine.creatEntity(); not sure which is better
+
+        ChildComponent child = engine.createComponent(ChildComponent.class);
+        AnimationComponent animation = engine.createComponent(AnimationComponent.class);
+        StateComponent state = engine.createComponent(StateComponent.class);
+        TextureComponent texture = engine.createComponent(TextureComponent.class);
+        TransformComponent position = engine.createComponent(TransformComponent.class);
+        //TODO: add BodyComponent for collisions
+        BodyComponent body = new BodyComponent();
+
+        //TODO: name the children?
+        //BookTitle title = getBookTitleByID(bookid);
+
+        state.set(ChildComponent.STATE_RUNNING);
+
+        animation.animations.put(ChildComponent.STATE_RUNNING, Assets.getChildAnimationByName("blue-b"));//title.getAssetName()));
+        animation.animations.put(ChildComponent.STATE_READING, Assets.getChildAnimationByName("blue-reading"));
+        animation.animations.put(ChildComponent.STATE_RELEASED, Assets.getChildAnimationByName("blue-released"));
+
+        // TODONE  use BookComponent.width and BookComponent.height for Bounds -> and BodyComponent
+        // TODO: randomly set y-value and flip x-values so they spawn on both sides of screen
+        position.position.set(-2f, 10f, 2.0f);
+        position.scale.set(0.5f, 0.5f); // TODO: check if scaling is OK
+
+        BodyDef bodyDef = new BodyDef();
+        bodyDef.type = BodyDef.BodyType.DynamicBody;
+        bodyDef.position.set(-2f, 10f);
+        //bodyDef.position.set((fromX + texture.region.getRegionWidth()/2) / PIXELS_TO_METERS,
+        //        (fromY + texture.region.getRegionHeight()/2) / PIXELS_TO_METERS);
+
+        body.body = physicsWorld.createBody(bodyDef);
+        //apply impulse
+
+        CircleShape bodyShape = new CircleShape();
+        bodyShape.setRadius(ChildComponent.RADIUS * 5 / PIXELS_TO_METERS);
+        //bodyShape.setAsBox(BookComponent.WIDTH * 0.25f, BookComponent.HEIGHT * 0.3f);
+        //bodyShape.setAsBox(128 / PIXELS_TO_METERS, 128 / PIXELS_TO_METERS);
+        //bodyShape.setAsBox(BookComponent.WIDTH * 2 / PIXELS_TO_METERS,
+        //        BookComponent.HEIGHT * 2 / PIXELS_TO_METERS);
+        //bodyShape.setRadius(BookComponent.WIDTH / 2 / PIXELS_TO_METERS);
+
+        FixtureDef fixtureDef = new FixtureDef();
+        fixtureDef.shape = bodyShape;
+        fixtureDef.density = 1f;
+        fixtureDef.friction = 0.4f;
+        fixtureDef.restitution = 0.6f;
+
+        // TODO consider moving children at diagonals with direction.y
+        Vector2 direction = new Vector2((position.position.x < WORLD_WIDTH / 2) ? 5f : -5f,
+                0f);
+        //direction.sub(body.body.getPosition());
+        //direction.nor();
+
+        float speed = 6;
+        body.body.setLinearVelocity(direction);
+        //body.body.applyForce(10f, 10f, fromX + 10, fromY + 10, true);//applyTorque(0.4f, true);
+
+        body.body.createFixture(fixtureDef);
+        bodyShape.dispose();
+
+        e.add(child);
+        e.add(animation);
+        e.add(state);
+        e.add(texture);
+        e.add(position);
+        e.add(body);
 
         engine.addEntity(e);
     }

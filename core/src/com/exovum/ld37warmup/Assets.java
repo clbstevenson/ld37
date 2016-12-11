@@ -153,4 +153,20 @@ public class Assets {
             return null; // AnimationAtlas isn't loaded yet
     }
 
+    /**
+     * Creates a new Animation for child based on char ID
+     * @param name name of the asset file. example would be 'orange-c' or 'green-a'
+     *             where it is 'Color-character'
+     * @return Animation containing textures for child with @id
+     */
+    public static Animation getChildAnimationByName(String name) {
+        Gdx.app.log("Assets", "Retrieving child animation frame by name: " + name);
+        if(am.isLoaded(ANIMATION_ATLAS, TEXTURE_ATLAS))
+            // Using findRegions instead of findRegion
+            // If the animation has only 1 image, it should behave the same as findRegion, right?
+            return new Animation(1f, am.get(ANIMATION_ATLAS, TEXTURE_ATLAS)
+                    .findRegions("child/" + name), Animation.PlayMode.LOOP);
+        else return null;
+    }
+
 }
