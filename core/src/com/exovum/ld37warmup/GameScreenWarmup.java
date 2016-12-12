@@ -220,7 +220,7 @@ public class GameScreenWarmup extends ScreenAdapter {
         // This isn't used anymore?
         Vector2 screenMeters = RenderingSystem.getScreenSizeInMeters();
         Gdx.app.log("Game Screen Warmup", "Screen Meters: " + screenMeters.x + " x " + screenMeters.y);
-        Vector2 screenPixels = RenderingSystem.getScreenSizeInPixesl();
+        Vector2 screenPixels = RenderingSystem.getScreenSizeInPixels();
         Gdx.app.log("Game Screen Warmup", "Screen Pixels:" + screenPixels.x + " x " + screenPixels.y);
 
         return e;
@@ -295,7 +295,7 @@ public class GameScreenWarmup extends ScreenAdapter {
         // This isn't used anymore?
         Vector2 screenMeters = RenderingSystem.getScreenSizeInMeters();
         Gdx.app.log("Game Screen Warmup", "Screen Meters: " + screenMeters.x + " x " + screenMeters.y);
-        Vector2 screenPixels = RenderingSystem.getScreenSizeInPixesl();
+        Vector2 screenPixels = RenderingSystem.getScreenSizeInPixels();
         Gdx.app.log("Game Screen Warmup", "Screen Pixels:" + screenPixels.x + " x " + screenPixels.y);
 
         return e;
@@ -371,7 +371,7 @@ public class GameScreenWarmup extends ScreenAdapter {
         // This isn't used anymore?
         Vector2 screenMeters = RenderingSystem.getScreenSizeInMeters();
         Gdx.app.log("Game Screen Warmup", "Screen Meters: " + screenMeters.x + " x " + screenMeters.y);
-        Vector2 screenPixels = RenderingSystem.getScreenSizeInPixesl();
+        Vector2 screenPixels = RenderingSystem.getScreenSizeInPixels();
         Gdx.app.log("Game Screen Warmup", "Screen Pixels:" + screenPixels.x + " x " + screenPixels.y);
 
         engine.addEntity(e);

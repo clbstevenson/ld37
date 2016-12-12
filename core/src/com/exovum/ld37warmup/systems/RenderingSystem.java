@@ -34,7 +34,7 @@ public class RenderingSystem extends SortedIteratingSystem {
         return meterDimensions;
     }
 
-    public static Vector2 getScreenSizeInPixesl(){
+    public static Vector2 getScreenSizeInPixels(){
         pixelDimensions.set(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         return pixelDimensions;
     }

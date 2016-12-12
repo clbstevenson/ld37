@@ -293,11 +293,11 @@ public class CollisionSystem extends EntitySystem implements ContactListener {
                 // Remove the Physics body from the child, but keep the rest of the components
                 //removeBodyPhysics.add(entityA);
             }
-        } else if(bounds.contains(entityA, true) && children.contains(entityB, true)) {
-            Gdx.app.log("Collision System", "1 Removing child after collision with a boundary.");
+        } else if(bounds.contains(entityA, true) && (children.contains(entityB, true) || books.contains(entityB, true))) {
+            Gdx.app.log("Collision System", "1 Removing child/book after collision with a boundary.");
             removeEntities.add(entityB);
-        } else if(bounds.contains(entityB, true) && children.contains(entityA, true)) {
-            Gdx.app.log("Collision System", "2 Removing child after collision with a boundary.");
+        } else if(bounds.contains(entityB, true) && (children.contains(entityA, true) || books.contains(entityA, true))) {
+            Gdx.app.log("Collision System", "2 Removing child/book after collision with a boundary.");
             removeEntities.add(entityA);
         } else {
             // do nothing

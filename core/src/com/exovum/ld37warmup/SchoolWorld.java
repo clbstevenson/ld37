@@ -13,6 +13,7 @@ import com.badlogic.gdx.physics.box2d.EdgeShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.utils.Align;
 import com.exovum.ld37warmup.components.AnimationComponent;
 import com.exovum.ld37warmup.components.BodyComponent;
 import com.exovum.ld37warmup.components.BookComponent;
@@ -103,7 +104,7 @@ public class SchoolWorld {
 
         school = generateSchool(WORLD_WIDTH / 2, WORLD_HEIGHT - SchoolComponent.HEIGHT * 3 / 4);
 
-    // ** generateBackground();
+        generateBackground();
         //generateEmptyTextAreas("candara20.fnt");
         //leftText.getComponent(FontComponent.class).setText("LEFT AREA IS THE BEST AREA YEAH MAN SO COOL");
         //rightText.getComponent(FontComponent.class).setText("Right Area is much more docile and well-behaved when compared to the left area.");
@@ -111,15 +112,15 @@ public class SchoolWorld {
         //generateBounds(WORLD_WIDTH * 2,5,WORLD_WIDTH + 10, WORLD_HEIGHT * 2);
         //new Vector2(screenInMeters.x - 2, screenInMeters.y / 2);
         //bodyShape.setAsBox(1, screenInMeters.y / 4);//, new Vector2(screenInMeters.x / 2, screenInMeters.y / 2), 0f);
-    // ** generateBounds(screenInMeters.x + 10, 1f, 1f, screenInMeters.y);
-    // ** generateBounds(-10, 1f, 1f, screenInMeters.y);
+        generateBounds(screenInMeters.x + 10, 1f, 1f, screenInMeters.y);
+        generateBounds(-10, 1f, 1f, screenInMeters.y);
         //generateBoundsLine(WORLD_WIDTH  / 2 + 5, 0, WORLD_WIDTH / 2 + 5, WORLD_HEIGHT);
 
-        generateTextWithFont("One Room Schoolhouse", WORLD_WIDTH / 2, WORLD_HEIGHT,
-                "candara36b.fnt");
+        generateTextWithFont("One Room Schoolhouse", WORLD_WIDTH / 2.5f, WORLD_HEIGHT,
+                "candara36b.fnt", Color.WHITE);
         generateTextWithFont(BookComponent.getRandomQuote(BookTitle.MOCKING, random),
-                WORLD_WIDTH / 2, WORLD_HEIGHT / 4, "candara20.fnt");//, FontComponent.TYPE.TEMP);
-        generateText("A Simple Text", 10f, 10f);//WORLD_WIDTH / 2, WORLD_HEIGHT - SchoolComponent.HEIGHT);
+                WORLD_WIDTH / 2, WORLD_HEIGHT / 4, "candara20.fnt", Color.WHITE);//, FontComponent.TYPE.TEMP);
+        //generateText("A Simple Text", 10f, 10f);//WORLD_WIDTH / 2, WORLD_HEIGHT - SchoolComponent.HEIGHT);
 
         //generateTextWithFont("")
 
@@ -193,8 +194,13 @@ public class SchoolWorld {
         if(textEntity != null)
             textEntity.removeAll();
         textEntity = generateTextWithFont(getTextFromEntityData(entityData),
-                WORLD_WIDTH /2 , 2, "candara20.fnt");
+                WORLD_WIDTH / 2 , 5, "candara20.fnt", Color.BLACK);
 
+    }
+
+    public void processChildBoundaryHit(Object data) {
+        EntityData entityData = ((EntityData)data);
+        Gdx.app.log("School World", "Child-Boundary Hit. Lose points/health/something");
     }
 
 
@@ -254,9 +260,9 @@ public class SchoolWorld {
         engine.addEntity(e);
     }
 
-    private Entity generateTextWithFont(String text, float x, float y, String fontname) {
+    private Entity generateTextWithFont(String text, float x, float y, String fontname, Color color) {
         Gdx.app.log("School World", "Generating font text entity");
-        return (generateTextWithFontType(text, x, y, fontname, FontComponent.TYPE.PERM));
+        return (generateTextWithFontType(text, x, y, fontname, color));
 
         /*
         Entity e = engine.createEntity();
@@ -282,7 +288,7 @@ public class SchoolWorld {
 
     }
 
-    private Entity generateTextWithFontType(String text, float x, float y, String fontname, FontComponent.TYPE fontType) {
+    private Entity generateTextWithFontType(String text, float x, float y, String fontname, Color color) {
         Gdx.app.log("School World", "Generating font text entity with type");
 
         Entity e = engine.createEntity();
@@ -294,8 +300,8 @@ public class SchoolWorld {
         // font.font = Assets.getMediumFont();
         font.font = Assets.getFont(fontname);
         font.glyph = new GlyphLayout();
-        font.glyph.setText(font.font, text);
-        font.type = fontType;
+    // **font.glyph.setText(font.font, text);
+        font.glyph.setText(font.font, text, color, RenderingSystem.getScreenSizeInPixels().x * 0.8f, Align.center, true);
         //font.type = FontComponent.TYPE.PERM;
 
         position.position.set(x, y, 2.0f); //TODO compare z-value with School's z-value
@@ -808,6 +814,6 @@ public class SchoolWorld {
             return;
         //TODO: update text field with a random quote from book
         generateTextWithFontType(BookComponent.getRandomQuote(book.title,random),WORLD_WIDTH/2,
-                WORLD_HEIGHT, "candara20.fnt", FontComponent.TYPE.TEMP);//, FontComponent.TYPE.TEMP);
+                WORLD_HEIGHT, "candara20.fnt", Color.PURPLE);//, FontComponent.TYPE.TEMP);
     }
 }

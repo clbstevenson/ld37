@@ -113,22 +113,29 @@ public class BookComponent implements Component{
 
         // Adding BookTitle.WATCH quotes
         Array<String> addQuotesWATCH = new Array<>();
-        addQuotesWATCH.addAll("\'Tea Cake is so fiiine.\' Hey wait. Who wrote this in?",
+        addQuotesWATCH.addAll(
                 "\'Some people could look at a mud puddle and see an ocean with ships.\'",
                 "\'There are years that ask questions and years that answer.\'",
                 "\'De way you looked at me when Ah said whut Ah did. Yo’ face skeered me so bad till mah whiskers drawed up.\'",
                 "\'If you kin see de light at daybreak, you don't keer if you die at dusk.\'");
+        addQuotesWATCH.addAll(
+                "\'Some people could look at a mud puddle and see an ocean with ships.\'",
+                "\'There are years that ask questions and years that answer.\'",
+                "\'De way you looked at me when Ah said whut Ah did. Yo’ face skeered me so bad till mah whiskers drawed up.\'",
+                "\'If you kin see de light at daybreak, you don't keer if you die at dusk.\'");
+        // Make "tea cake is so fine" less common than the other quotes
+        addQuotesWATCH.add("\'Tea Cake is so fiiine.\' Hey wait. Who wrote this in?");
         quotes.put(BookTitle.WATCH, addQuotesWATCH);
 
         // Adding BookTitle.QUIXOTE quotes
         Array<String> addQuotesQUIXOTE = new Array<>();
-        addQuotesQUIXOTE.addAll("There is no book so bad...that it does not have something good in it.",
-                "Finally, from so little sleeping and so much reading, his brain dried up and he went completely out of his mind.",
-                "Thou hast seen nothing yet.",
-                "Hunger is the best sauce in the world.",
-                "What man can pretend to know the riddle of a woman's mind?",
-                "Wit and humor do not reside in slow minds",
-                "Do you see over yonder, friend Sancho, thirty or forty hulking giants? I intend to do battle with them and slay them.");
+        addQuotesQUIXOTE.addAll("\'There is no book so bad...that it does not have something good in it.\'",
+                "\'Finally, from so little sleeping and so much reading, his brain dried up and he went completely out of his mind.\'",
+                "\'Thou hast seen nothing yet.\'",
+                "\'Hunger is the best sauce in the world.\'",
+                "\'What man can pretend to know the riddle of a woman's mind?\'",
+                "\'Wit and humor do not reside in slow minds\'",
+                "\'Do you see over yonder, friend Sancho, thirty or forty hulking giants? I intend to do battle with them and slay them.\'");
         quotes.put(BookTitle.QUIXOTE, addQuotesQUIXOTE);
     }
 
