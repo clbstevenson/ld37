@@ -145,7 +145,7 @@ public class SchoolGameScreen extends ScreenAdapter {
     @Override
     public void hide() {
         paused = true;
-        setEngineOn(false);
+        //setEngineOn(false);
     }
 
     @Override
@@ -157,7 +157,7 @@ public class SchoolGameScreen extends ScreenAdapter {
     @Override
     public void pause() {
         paused = true;
-        setEngineOn(false);
+        //setEngineOn(false);
     }
 
     @Override
