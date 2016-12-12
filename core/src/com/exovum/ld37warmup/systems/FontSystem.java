@@ -37,6 +37,7 @@ public class FontSystem extends SortedIteratingSystem {
     private static Vector2 pixelDimensions = new Vector2();
 
     private Array<Entity> removeEntities;
+    // TODO set engine by a parameter to constructor
     private Engine engine;
 
     public static Vector2 getScreenSizeInMeters(){
@@ -130,18 +131,22 @@ public class FontSystem extends SortedIteratingSystem {
             //      RenderingSystem uses the World width/height which is approx 40x30.
             font.font.draw(batch, font.glyph, (RATIO_WIDTH * t.position.x - glyph.width / 2),
                     (RATIO_HEIGHT* t.position.y - glyph.height / 2));
+
             // Update the font timer
+            /*
             if(font.type != FontComponent.TYPE.PERM) {
                 if(font.displayTime < 0 ) {
                     font.displayTime -= deltaTime;
                     removeEntities.add(entity);
                 }
             }
+            */
 
         }
 
         batch.end();
 
+        /*
         // Remove everything from the entity and then kill the entity too
         for(Entity e: removeEntities) {
             FontComponent deadFont = fontM.get(e);
@@ -151,6 +156,7 @@ public class FontSystem extends SortedIteratingSystem {
             }
         }
         removeEntities.clear();
+        */
 
         renderQueue.clear();
 
@@ -162,11 +168,13 @@ public class FontSystem extends SortedIteratingSystem {
         // remember to add entity to font queue so they can actually render
     }
 
+
+    /*
     @Override
     public void addedToEngine(Engine engine) {
         this.engine = engine;
-
     }
+    */
 
     public OrthographicCamera getCamera() {
         return cam;

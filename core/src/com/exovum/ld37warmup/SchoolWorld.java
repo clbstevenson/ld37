@@ -3,6 +3,7 @@ package com.exovum.ld37warmup;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.math.Vector2;
@@ -23,7 +24,6 @@ import com.exovum.ld37warmup.components.SchoolComponent;
 import com.exovum.ld37warmup.components.StateComponent;
 import com.exovum.ld37warmup.components.TextureComponent;
 import com.exovum.ld37warmup.components.TransformComponent;
-import com.exovum.ld37warmup.systems.CollisionSystem;
 import com.exovum.ld37warmup.systems.RenderingSystem;
 
 import java.util.Random;
@@ -76,14 +76,24 @@ public class SchoolWorld {
 
     Entity leftText, rightText;
 
+    Music music;
+
+    int points;
+
     public SchoolWorld(PooledEngine engine, World world) {
         this.engine = engine;
         this.physicsWorld = world;
         random = new Random();
+
     }
 
     public void create() {
         this.state = State.RUNNING;
+
+        music = Assets.getMusic();
+        music.setVolume(0.25f);
+        music.setLooping(true);
+        music.play();
 
         // initially create a
         //physicsWorld = new World(new Vector2(0f, 0f), true);
@@ -92,7 +102,7 @@ public class SchoolWorld {
 
         school = generateSchool(WORLD_WIDTH / 2, WORLD_HEIGHT - SchoolComponent.HEIGHT * 3 / 4);
 
-        generateBackground();
+    // ** generateBackground();
         //generateEmptyTextAreas("candara20.fnt");
         //leftText.getComponent(FontComponent.class).setText("LEFT AREA IS THE BEST AREA YEAH MAN SO COOL");
         //rightText.getComponent(FontComponent.class).setText("Right Area is much more docile and well-behaved when compared to the left area.");
@@ -100,8 +110,8 @@ public class SchoolWorld {
         //generateBounds(WORLD_WIDTH * 2,5,WORLD_WIDTH + 10, WORLD_HEIGHT * 2);
         //new Vector2(screenInMeters.x - 2, screenInMeters.y / 2);
         //bodyShape.setAsBox(1, screenInMeters.y / 4);//, new Vector2(screenInMeters.x / 2, screenInMeters.y / 2), 0f);
-        generateBounds(screenInMeters.x + 10, 1f, 1f, screenInMeters.y);
-        generateBounds(-10, 1f, 1f, screenInMeters.y);
+    // ** generateBounds(screenInMeters.x + 10, 1f, 1f, screenInMeters.y);
+    // ** generateBounds(-10, 1f, 1f, screenInMeters.y);
         //generateBoundsLine(WORLD_WIDTH  / 2 + 5, 0, WORLD_WIDTH / 2 + 5, WORLD_HEIGHT);
 
         generateTextWithFont("One Room Schoolhouse", WORLD_WIDTH / 2, WORLD_HEIGHT,
@@ -146,6 +156,44 @@ public class SchoolWorld {
 
     private void sweepDeadBodies() {
     }
+
+    public int getPoints() {
+        return points;
+    }
+
+    public void addPoint() {
+        addPoints(1);
+    }
+
+    public void addPoints(int morePoints) {
+        points += morePoints;
+    }
+
+    private void playSoundBookChild() {
+        Assets.getSoundByName("hit-sound-1.wav").play(0.5f);
+    }
+
+    public void processBookChildHit(Object data) {
+        EntityData entityData = ((EntityData)data);
+        BodyComponent childBody = entityData.getFirst().getComponent(BodyComponent.class);
+        // add points based on velocity of child
+        addPoints((int)childBody.body.getLinearVelocity().x);
+        //addPoints(1);
+
+        playSoundBookChild();
+        Gdx.app.log("School World", "Book-Child Hit. Points: " + points);
+    }
+
+    public void processChildSchoolHit(Object data) {
+        EntityData entityData = ((EntityData)data);
+        addPoints(2);
+        Assets.getSoundByName("points.wav").play(0.5f);
+        Gdx.app.log("School World", "Child-School Hit. Points: " + points);
+        generateTextWithFont(getTextFromEntityData(entityData),
+                WORLD_WIDTH /2 , 10, "candara20.fnt");
+    }
+
+
 
     private void generateEmptyTextAreas(String fontname) {
         Gdx.app.log("School World", "Setting up the text areas to display the BookCP.quote");
@@ -204,6 +252,8 @@ public class SchoolWorld {
 
     private void generateTextWithFont(String text, float x, float y, String fontname) {
         Gdx.app.log("School World", "Generating font text entity");
+        //wgenerateTextWithFontType(text, x, y, fontname, FontComponent.TYPE.PERM);
+
         Entity e = engine.createEntity();
 
         FontComponent font = engine.createComponent(FontComponent.class);
@@ -214,6 +264,7 @@ public class SchoolWorld {
         font.font = Assets.getFont(fontname);
         font.glyph = new GlyphLayout();
         font.glyph.setText(font.font, text);
+        //font.type = FontComponent.TYPE.PERM;
 
         position.position.set(x, y, 2.0f); //TODO compare z-value with School's z-value
 
@@ -236,6 +287,7 @@ public class SchoolWorld {
         font.font = Assets.getFont(fontname);
         font.glyph = new GlyphLayout();
         font.glyph.setText(font.font, text);
+        //font.type = fontType;
         if(fontType != FontComponent.TYPE.PERM)
             font.displayTime = 2.5f;
 
@@ -360,7 +412,7 @@ public class SchoolWorld {
         float scaleY = WORLD_HEIGHT / (RenderingSystem.PixelsToMeters(texture.region.getRegionHeight()));
 
         //position.position.set(x - SchoolComponent.WIDTH, y, 1.0f);
-        position.position.set(WORLD_WIDTH / 2, WORLD_HEIGHT / 2, 20.0f); // does a lower z-value mean closer or farther?
+        position.position.set(WORLD_WIDTH / 2, WORLD_HEIGHT / 2, 7.0f); // does a lower z-value mean closer or farther?
         // I believe low z-values means closer to the "top"
         // so high-z values will appear UNDER low-z values
         position.scale.set(scaleX, scaleY);  //0.75f, 0.5f);
@@ -705,6 +757,14 @@ public class SchoolWorld {
         return direction.scl(speed);
     }
 
+    private String getTextFromEntityData(EntityData data) {
+        Entity e = data.getData(1);
+        BookComponent book = e.getComponent(BookComponent.class);
+        if(book == null)
+            return "NO BOOK DATA";
+        return BookComponent.getRandomQuote(book.title, random);
+    }
+
     public void updateTextField(Object userData) {
         Gdx.app.log("School World", "Updating text field based on user data");
         //BookComponent book = ((BookComponent)userData);
@@ -714,7 +774,7 @@ public class SchoolWorld {
         if(book == null) // do nothing
             return;
         //TODO: update text field with a random quote from book
-        generateTextWithFont(BookComponent.getRandomQuote(book.title,random),WORLD_WIDTH/2, 1f,
-                "candara20.fnt");//, FontComponent.TYPE.TEMP);
+        generateTextWithFontType(BookComponent.getRandomQuote(book.title,random),WORLD_WIDTH/2,
+                WORLD_HEIGHT, "candara20.fnt", FontComponent.TYPE.TEMP);//, FontComponent.TYPE.TEMP);
     }
 }

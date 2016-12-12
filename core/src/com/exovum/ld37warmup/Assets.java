@@ -38,6 +38,10 @@ public class Assets {
         am.load("sounds/drop.wav", SOUND);
         am.load("sounds/song1.wav", MUSIC);
 
+        am.load("sounds/hit-sound-1.wav", SOUND);
+        am.load("sounds/points.wav", SOUND);
+        am.load("sounds/music-fancy-shyster.wav", MUSIC);
+
         // add the TextureAtlas of static sprites to the AssetManager
         am.load(SPRITES_ATLAS, TEXTURE_ATLAS);
 
@@ -174,4 +178,15 @@ public class Assets {
         else return null;
     }
 
+    public static Music getMusic() {
+        if(am.isLoaded("sounds/music-fancy-shyster.wav", Music.class)) {
+            return am.get("sounds/music-fancy-shyster.wav");
+        } else return null;
+    }
+
+    public static Sound getSoundByName(String soundname) {
+        if(am.isLoaded("sounds/" + soundname, Sound.class)) {
+            return am.get("sounds/" + soundname);
+        } else return null;
+    }
 }

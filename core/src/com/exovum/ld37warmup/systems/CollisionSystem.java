@@ -193,6 +193,10 @@ public class CollisionSystem extends EntitySystem implements ContactListener {
                 // Add the Book Entity so it can be removed later
                 removeEntities.add(entityA);
 
+                // Play collision sound
+                //gameWorld.playSoundBookChild();
+                gameWorld.processBookChildHit(childBody.body.getUserData());
+
             }
 
         } else if(books.contains(entityB, true) && children.contains(entityA, true)) {
@@ -237,6 +241,8 @@ public class CollisionSystem extends EntitySystem implements ContactListener {
                 // Add the Book Entity so it can be removed later
                 removeEntities.add(entityB);
 
+                gameWorld.processBookChildHit(childBody.body.getUserData());
+
             }
         }
         // If the children collide with the school, remove them? or pause them, then move after a timer or something idk
@@ -252,13 +258,15 @@ public class CollisionSystem extends EntitySystem implements ContactListener {
 
                 // update the text to the random quote stored from the book that hit the child
                 //gameWorld.updateTextField(childBody.body.getUserData());
-                gameWorld.updateTextField(dataB);
+                //gameWorld.updateTextField(dataB);
 
                 if(schoolPos.position.x > childPos.position.x) {
                     childBody.body.setLinearVelocity(-15f, 0f);
                 } else {
                     childBody.body.setLinearVelocity(15f, 0f);
                 }
+
+                gameWorld.processChildSchoolHit(childBody.body.getUserData());
                 // Remove the Physics body from the child, but keep the rest of the components
                 //removeBodyPhysics.add(entityB);
             }
@@ -274,13 +282,14 @@ public class CollisionSystem extends EntitySystem implements ContactListener {
 
                 // update the text to the random quote stored from the book that hit the child
                 //gameWorld.updateTextField(childBody.body.getUserData());
-                gameWorld.updateTextField(dataA);
+                //gameWorld.updateTextField(dataA);
 
                 if (schoolPos.position.x > childPos.position.x) {
                     childBody.body.setLinearVelocity(-15f, 0f);
                 } else {
                     childBody.body.setLinearVelocity(15f, 0f);
                 }
+                gameWorld.processChildSchoolHit(childBody.body.getUserData());
                 // Remove the Physics body from the child, but keep the rest of the components
                 //removeBodyPhysics.add(entityA);
             }

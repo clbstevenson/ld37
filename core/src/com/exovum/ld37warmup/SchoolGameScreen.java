@@ -101,9 +101,9 @@ public class SchoolGameScreen extends ScreenAdapter {
 
     private void update(float delta) {
         engine.update(delta);
-            gameWorld.update(delta);
+        gameWorld.update(delta);
 
-            elapsedTime += delta;
+        elapsedTime += delta;
 
         // Use a FontComponent to render text. It will be processed by RenderingSystem
         //glyphLayout.setText(Assets.getMediumFont(), "Time: " + elapsedTime);
@@ -127,6 +127,8 @@ public class SchoolGameScreen extends ScreenAdapter {
     }
 
     private void setEngineOn(boolean turnOn) {
+
+        /*
         if(engine != null) {
             Gdx.app.log("School Game Screen", "Setting engine to " + turnOn);
             gameWorld.pause(!turnOn);
@@ -140,6 +142,7 @@ public class SchoolGameScreen extends ScreenAdapter {
             if (engine.getSystem(AnimationSystem.class) != null)
                 engine.getSystem(AnimationSystem.class).setProcessing(turnOn);
         }
+        */
     }
 
     @Override
@@ -151,7 +154,7 @@ public class SchoolGameScreen extends ScreenAdapter {
     @Override
     public void show() {
         paused = false;
-        setEngineOn(true);
+        //setEngineOn(true);
     }
 
     @Override
@@ -163,7 +166,7 @@ public class SchoolGameScreen extends ScreenAdapter {
     @Override
     public void resume() {
         paused = false;
-        setEngineOn(true);
+        //setEngineOn(true);
     }
 
 }
