@@ -63,13 +63,15 @@ public class FontSystem extends SortedIteratingSystem {
     private ComponentMapper<TransformComponent> transformM;
     private ComponentMapper<FontComponent> fontM;
 
-    public FontSystem(SpriteBatch batch) {
+    public FontSystem(SpriteBatch batch, Engine engine) {
         super(Family.all(TransformComponent.class, FontComponent.class).get(), new ZComparator());
 
         transformM = ComponentMapper.getFor(TransformComponent.class);
         fontM = ComponentMapper.getFor(FontComponent.class);
 
         renderQueue = new Array<>();
+
+        this.engine = engine;
 
         removeEntities = new Array<>();
 

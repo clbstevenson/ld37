@@ -75,6 +75,7 @@ public class SchoolWorld {
     Entity school;
 
     Entity leftText, rightText;
+    Entity textEntity;
 
     Music music;
 
@@ -189,8 +190,11 @@ public class SchoolWorld {
         addPoints(2);
         Assets.getSoundByName("points.wav").play(0.5f);
         Gdx.app.log("School World", "Child-School Hit. Points: " + points);
-        generateTextWithFont(getTextFromEntityData(entityData),
-                WORLD_WIDTH /2 , 10, "candara20.fnt");
+        if(textEntity != null)
+            textEntity.removeAll();
+        textEntity = generateTextWithFont(getTextFromEntityData(entityData),
+                WORLD_WIDTH /2 , 2, "candara20.fnt");
+
     }
 
 
@@ -250,10 +254,11 @@ public class SchoolWorld {
         engine.addEntity(e);
     }
 
-    private void generateTextWithFont(String text, float x, float y, String fontname) {
+    private Entity generateTextWithFont(String text, float x, float y, String fontname) {
         Gdx.app.log("School World", "Generating font text entity");
-        //wgenerateTextWithFontType(text, x, y, fontname, FontComponent.TYPE.PERM);
+        return (generateTextWithFontType(text, x, y, fontname, FontComponent.TYPE.PERM));
 
+        /*
         Entity e = engine.createEntity();
 
         FontComponent font = engine.createComponent(FontComponent.class);
@@ -273,10 +278,37 @@ public class SchoolWorld {
         e.add(position);
 
         engine.addEntity(e);
+        */
+
     }
 
-    private void generateTextWithFontType(String text, float x, float y, String fontname, FontComponent.TYPE fontType) {
-        Gdx.app.log("School World", "Generating font text entity");
+    private Entity generateTextWithFontType(String text, float x, float y, String fontname, FontComponent.TYPE fontType) {
+        Gdx.app.log("School World", "Generating font text entity with type");
+
+        Entity e = engine.createEntity();
+
+        FontComponent font = engine.createComponent(FontComponent.class);
+        TransformComponent position = engine.createComponent(TransformComponent.class);
+
+        //TODO: fix font rendering scaling: its too big!
+        // font.font = Assets.getMediumFont();
+        font.font = Assets.getFont(fontname);
+        font.glyph = new GlyphLayout();
+        font.glyph.setText(font.font, text);
+        font.type = fontType;
+        //font.type = FontComponent.TYPE.PERM;
+
+        position.position.set(x, y, 2.0f); //TODO compare z-value with School's z-value
+
+        //Remembering to add the components to the entity is a good idea
+        e.add(font);
+        e.add(position);
+
+        engine.addEntity(e);
+
+        return e;
+
+        /*
         Entity e = engine.createEntity();
 
         FontComponent font = engine.createComponent(FontComponent.class);
@@ -298,6 +330,7 @@ public class SchoolWorld {
         e.add(position);
 
         engine.addEntity(e);
+        */
     }
 
     /**

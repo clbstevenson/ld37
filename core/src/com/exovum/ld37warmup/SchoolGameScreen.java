@@ -66,7 +66,7 @@ public class SchoolGameScreen extends ScreenAdapter {
         // create ECS system to process rendering
         RenderingSystem renderingSystem = new RenderingSystem(batch);
         engine.addSystem(renderingSystem);
-        engine.addSystem(new FontSystem(batch));
+        engine.addSystem(new FontSystem(batch, engine));
         engine.addSystem(new AnimationSystem());
         // add ECS system to process physics in the Box2D world
         engine.addSystem(new PhysicsSystem(world));
