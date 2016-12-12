@@ -20,6 +20,7 @@ import com.exovum.ld37warmup.components.SchoolComponent;
 import com.exovum.ld37warmup.components.StateComponent;
 import com.exovum.ld37warmup.components.TextureComponent;
 import com.exovum.ld37warmup.components.TransformComponent;
+import com.exovum.ld37warmup.systems.CollisionSystem;
 import com.exovum.ld37warmup.systems.RenderingSystem;
 
 import java.util.Random;
@@ -33,12 +34,24 @@ import static com.exovum.ld37warmup.components.BookComponent.BookTitle.getBookTi
 public class SchoolWorld {
 
 
+
+
     // PS: Use an abstract World class next time that supplies the base info
     // connecting SchoolWorld and GameWorld together for simplification
 
     enum State {
         RUNNING, PAUSED, GAMEOVER, GAMEWON, UPGRADE
     }
+
+    public static final short ENT_SCHOOL            = 0x0001;
+    public static final short ENT_FRIENDLY_BOOK     = 0x0002;
+    public static final short ENT_ENEMY_BOOK        = 0x0004;
+    public static final short ENT_FRIENDLY_CHILD    = 0x0008;
+    public static final short ENT_ENEMY_CHILD       = 0x00010;
+
+    public static final short GROUP_SCHOOL = 1;
+    public static final short GROUP_BOOK = -2;
+    public static final short GROUP_CHILD = -1;
 
     // Cooldown timer for controlling events such as throwing books
     // TODO: array of cooldown timers?
@@ -48,7 +61,7 @@ public class SchoolWorld {
     State state;
 
     World physicsWorld;
-    final float PIXELS_TO_METERS = 16f;
+    public static final float PIXELS_TO_METERS = 16f;
 
     public static final float WORLD_WIDTH = 40f; // TODO: To Be Determined. Check with RenderingSystem
     public static final float WORLD_HEIGHT = 30f; // TODO: TBD. Check with RenderingSystem
@@ -67,6 +80,8 @@ public class SchoolWorld {
 
         // initially create a
         //physicsWorld = new World(new Vector2(0f, 0f), true);
+
+        //physicsWorld.setContactListener(new CollisionSystem(this, physicsWorld));
 
         school = generateSchool(WORLD_WIDTH / 2, WORLD_HEIGHT - SchoolComponent.HEIGHT * 3 / 4);
 
@@ -94,7 +109,12 @@ public class SchoolWorld {
             createChild();
             childCooldown = 1f;
         }
+
+        sweepDeadBodies();
         //Gdx.app.log("School World", "Updating School World. cooldown: " + cooldown);
+    }
+
+    private void sweepDeadBodies() {
     }
 
     private void generateText(String text, float x, float y) {
@@ -156,6 +176,8 @@ public class SchoolWorld {
         TextureComponent texture = engine.createComponent(TextureComponent.class);
         StateComponent state = engine.createComponent(StateComponent.class);
         TransformComponent position = engine.createComponent(TransformComponent.class);
+        // use BodyComponent to check when a child reaches the school
+        BodyComponent body = engine.createComponent(BodyComponent.class);
         // TODO add BodyComponent so it can be processed by the Box2D world?
 
         texture.region = Assets.getSchoolSprite();
@@ -165,7 +187,7 @@ public class SchoolWorld {
         float scaleY = SchoolComponent.HEIGHT / (RenderingSystem.PixelsToMeters(texture.region.getRegionHeight()));
 
         //position.position.set(x - SchoolComponent.WIDTH, y, 1.0f);
-        position.position.set(x, y, 10.0f); // does a lower z-value mean closer or farther?
+        position.position.set(x, y, 5.0f); // does a lower z-value mean closer or farther?
                                             // I believe low z-values means closer to the "top"
                                             // so high-z values will appear UNDER low-z values
         position.scale.set(scaleX, scaleY);  //0.75f, 0.5f);
@@ -173,13 +195,46 @@ public class SchoolWorld {
 
         state.set(SchoolComponent.STATE_NORMAL);
 
+        BodyDef bodyDef = new BodyDef();
+        bodyDef.type = BodyDef.BodyType.StaticBody;
+        bodyDef.position.set(x, y);
+        //bodyDef.position.set((fromX + texture.region.getRegionWidth()/2) / PIXELS_TO_METERS,
+        //        (fromY + texture.region.getRegionHeight()/2) / PIXELS_TO_METERS);
+
+        body.body = physicsWorld.createBody(bodyDef);
+        //apply impulse
+
+        PolygonShape bodyShape = new PolygonShape();
+        bodyShape.setAsBox((SchoolComponent.WIDTH / 8), (SchoolComponent.HEIGHT / 6));
+        //bodyShape.setAsBox(SchoolComponent.WIDTH * 4/ PIXELS_TO_METERS / scaleX,
+        //        SchoolComponent.HEIGHT * 4/ PIXELS_TO_METERS / scaleY); //WIDTH * 0.25f, HEIGHT* 0.3f);
+        //bodyShape.setAsBox(128 / PIXELS_TO_METERS, 128 / PIXELS_TO_METERS);
+        //bodyShape.setAsBox(BookComponent.WIDTH * 2 / PIXELS_TO_METERS,
+        //        BookComponent.HEIGHT * 2 / PIXELS_TO_METERS);
+        //bodyShape.setRadius(BookComponent.WIDTH / 2 / PIXELS_TO_METERS);
+
+        FixtureDef fixtureDef = new FixtureDef();
+        fixtureDef.shape = bodyShape;
+        fixtureDef.density = 1f;
+        fixtureDef.friction = 0.4f;
+        fixtureDef.restitution = -0.5f;
+        fixtureDef.filter.categoryBits = ENT_SCHOOL;
+        // Schools collide with Enemy Child and Friendly Child
+        fixtureDef.filter.maskBits = ENT_ENEMY_CHILD | ENT_FRIENDLY_CHILD;
+
+        //fixtureDef.filter.groupIndex = GROUP_BOOK;
+
+        body.body.createFixture(fixtureDef);
+        bodyShape.dispose();
+
         e.add(school);
         e.add(texture);
         e.add(position);
         e.add(state);
+        e.add(body);
 
         engine.addEntity(e);
-
+        body.body.setUserData(e);
         return e;
     }
 
@@ -272,7 +327,12 @@ public class SchoolWorld {
         fixtureDef.shape = bodyShape;
         fixtureDef.density = 1f;
         fixtureDef.friction = 0.4f;
-        fixtureDef.restitution = 0.6f;
+        fixtureDef.restitution = -0.5f;
+        //fixtureDef.filter.groupIndex = GROUP_BOOK;
+        fixtureDef.filter.categoryBits = ENT_FRIENDLY_BOOK;
+        // Books collide with Enemy Child, but NOT Friendly Child
+        fixtureDef.filter.maskBits = ENT_ENEMY_CHILD;
+
 
         // calculate force needed to push object from (fromX, fromY) to (toX, toY);
         double distance = Math.sqrt( (Math.pow(toX - fromX, 2)) + (Math.pow(toY - fromY, 2)) );
@@ -327,6 +387,8 @@ public class SchoolWorld {
 
 
         engine.addEntity(e);
+        // add the entity as user data to the body - used for collisions
+        body.body.setUserData(e);
     }
 
     /**
@@ -354,7 +416,7 @@ public class SchoolWorld {
 
         // TODONE  use BookComponent.width and BookComponent.height for Bounds -> and BodyComponent
         // TODO: randomly set y-value and flip x-values so they spawn on both sides of screen
-        position.position.set(-2f, 10f, 2.0f);
+        position.position.set(-2f, 10f, 6.0f);
         position.scale.set(0.5f, 0.5f); // TODO: check if scaling is OK
 
         BodyDef bodyDef = new BodyDef();
@@ -378,7 +440,11 @@ public class SchoolWorld {
         fixtureDef.shape = bodyShape;
         fixtureDef.density = 1f;
         fixtureDef.friction = 0.4f;
-        fixtureDef.restitution = 0.6f;
+        fixtureDef.restitution = -0.5f;
+        //fixtureDef.filter.groupIndex = GROUP_CHILD;
+        fixtureDef.filter.categoryBits = ENT_ENEMY_CHILD;
+        // Children collide with School, Friendy Book, and Enemy Book
+        fixtureDef.filter.maskBits = ENT_SCHOOL | ENT_FRIENDLY_BOOK | ENT_ENEMY_BOOK;
 
         // TODO consider moving children at diagonals with direction.y
         Vector2 direction = new Vector2((position.position.x < WORLD_WIDTH / 2) ? 5f : -5f,
@@ -391,6 +457,7 @@ public class SchoolWorld {
         //body.body.applyForce(10f, 10f, fromX + 10, fromY + 10, true);//applyTorque(0.4f, true);
 
         body.body.createFixture(fixtureDef);
+
         bodyShape.dispose();
 
         e.add(child);
@@ -401,5 +468,22 @@ public class SchoolWorld {
         e.add(body);
 
         engine.addEntity(e);
+        // add the entity as user data to the body - used for collisions
+        body.body.setUserData(e);
+    }
+
+    // Veloctiy/Direction helper methods
+    public Vector2 getVelocityTowardsSchool(float speed, float x, float y) {
+        return getVelocityTo(speed, x, y, school.getComponent(TransformComponent.class).position.x,
+                school.getComponent(TransformComponent.class).position.y);
+    }
+
+    private Vector2 getVelocityTo(float speed, float fromX, float fromY, float toX, float toY) {
+        Vector2 direction = new Vector2(toX, toY);
+        direction.sub(fromX, fromY);
+        direction.nor();
+
+        //body.body.setLinearVelocity(direction.scl(speed));
+        return direction.scl(speed);
     }
 }

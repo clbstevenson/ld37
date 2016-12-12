@@ -13,6 +13,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
 import com.exovum.ld37warmup.systems.AnimationSystem;
+import com.exovum.ld37warmup.systems.CollisionSystem;
 import com.exovum.ld37warmup.systems.FontSystem;
 import com.exovum.ld37warmup.systems.PhysicsDebugSystem;
 import com.exovum.ld37warmup.systems.PhysicsSystem;
@@ -68,6 +69,10 @@ public class SchoolGameScreen extends ScreenAdapter {
         engine.addSystem(new AnimationSystem());
         // add ECS system to process physics in the Box2D world
         engine.addSystem(new PhysicsSystem(world));
+
+        CollisionSystem collisionSystem = new CollisionSystem(gameWorld, world);
+        engine.addSystem(collisionSystem);
+        world.setContactListener(collisionSystem);
 
         // TODO: eventually remove these systems. they are just used for testing
         engine.addSystem(new PhysicsDebugSystem(world, renderingSystem.getCamera()));

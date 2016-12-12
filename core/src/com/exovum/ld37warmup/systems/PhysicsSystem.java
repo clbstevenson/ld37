@@ -6,10 +6,13 @@ import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.exovum.ld37warmup.components.BodyComponent;
 import com.exovum.ld37warmup.components.TransformComponent;
+
+import java.util.Iterator;
 
 public class PhysicsSystem extends IteratingSystem {
 
@@ -42,6 +45,8 @@ public class PhysicsSystem extends IteratingSystem {
             for (Entity entity : bodiesQueue) {
                 TransformComponent tfm = tm.get(entity);
                 BodyComponent bodyComp = bm.get(entity);
+                if(!bm.has(entity))
+                    continue;
                 Vector2 position = bodyComp.body.getPosition();
                 tfm.position.x = position.x;
                 tfm.position.y = position.y;
@@ -49,13 +54,19 @@ public class PhysicsSystem extends IteratingSystem {
             }
         }
 
+        sweepDeadBodies();
+
 
         bodiesQueue.clear();
 
+    }
+
+    private void sweepDeadBodies() {
     }
 
     @Override
     protected void processEntity(Entity entity, float deltaTime) {
         bodiesQueue.add(entity);
     }
+
 }

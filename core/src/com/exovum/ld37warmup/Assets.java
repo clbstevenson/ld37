@@ -164,7 +164,7 @@ public class Assets {
         if(am.isLoaded(ANIMATION_ATLAS, TEXTURE_ATLAS))
             // Using findRegions instead of findRegion
             // If the animation has only 1 image, it should behave the same as findRegion, right?
-            return new Animation(1f, am.get(ANIMATION_ATLAS, TEXTURE_ATLAS)
+            return new Animation(1/2f, am.get(ANIMATION_ATLAS, TEXTURE_ATLAS)
                     .findRegions("child/" + name), Animation.PlayMode.LOOP);
         else return null;
     }
