@@ -77,11 +77,12 @@ public class SchoolWorld {
 
     Entity leftText, rightText;
     Entity textEntity;
+    Entity healthEntity;
 
     Music music;
 
     int points;
-
+    int missedChildren, maxChildren;
     public SchoolWorld(PooledEngine engine, World world) {
         this.engine = engine;
         this.physicsWorld = world;
@@ -91,6 +92,13 @@ public class SchoolWorld {
 
     public void create() {
         this.state = State.RUNNING;
+
+        // reset points to 0
+        points = 0;
+        // reset health to 10: 10 children can get away before gameover
+        missedChildren = 0;
+        // maximum # of children that can be missed before game over
+        maxChildren = 10;
 
         music = Assets.getMusic();
         music.setVolume(0.25f);
@@ -114,12 +122,15 @@ public class SchoolWorld {
         //bodyShape.setAsBox(1, screenInMeters.y / 4);//, new Vector2(screenInMeters.x / 2, screenInMeters.y / 2), 0f);
         generateBounds(screenInMeters.x + 10, 1f, 1f, screenInMeters.y);
         generateBounds(-10, 1f, 1f, screenInMeters.y);
+
+        healthEntity = generateTextWithFont("Escaped Children: " + missedChildren + " / " + maxChildren,
+                WORLD_WIDTH /2 + 3, WORLD_HEIGHT, "candara12.fnt", Color.WHITE);
         //generateBoundsLine(WORLD_WIDTH  / 2 + 5, 0, WORLD_WIDTH / 2 + 5, WORLD_HEIGHT);
 
         generateTextWithFont("One Room Schoolhouse", WORLD_WIDTH / 2.5f, WORLD_HEIGHT,
                 "candara36b.fnt", Color.WHITE);
-        generateTextWithFont(BookComponent.getRandomQuote(BookTitle.MOCKING, random),
-                WORLD_WIDTH / 2, WORLD_HEIGHT / 4, "candara20.fnt", Color.WHITE);//, FontComponent.TYPE.TEMP);
+        //generateTextWithFont(BookComponent.getRandomQuote(BookTitle.MOCKING, random),
+        //        WORLD_WIDTH / 2, WORLD_HEIGHT / 4, "candara20.fnt", Color.WHITE);//, FontComponent.TYPE.TEMP);
         //generateText("A Simple Text", 10f, 10f);//WORLD_WIDTH / 2, WORLD_HEIGHT - SchoolComponent.HEIGHT);
 
         //generateTextWithFont("")
@@ -201,6 +212,17 @@ public class SchoolWorld {
     public void processChildBoundaryHit(Object data) {
         EntityData entityData = ((EntityData)data);
         Gdx.app.log("School World", "Child-Boundary Hit. Lose points/health/something");
+
+        if(missedChildren >= maxChildren) {
+            // switch to gameover
+            this.state = State.GAMEOVER;
+        } else {
+            missedChildren++;
+            if(healthEntity != null)
+                healthEntity.removeAll();
+            healthEntity = generateTextWithFont("Escaped Children: " + missedChildren + " / " + maxChildren,
+                    WORLD_WIDTH /2 + 3, WORLD_HEIGHT, "candara12.fnt", Color.WHITE);
+        }
     }
 
 

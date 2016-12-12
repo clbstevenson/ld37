@@ -19,7 +19,7 @@ public class LD37Game extends Game {
     SpriteBatch batch;
     AssetManager am;
 
-    private ScreenDispatcherWarmup screenDispatcher;
+    public static ScreenDispatcherWarmup screenDispatcher;
 
     @Override
     public void create() {

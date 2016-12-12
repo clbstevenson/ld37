@@ -105,6 +105,11 @@ public class SchoolGameScreen extends ScreenAdapter {
 
         elapsedTime += delta;
 
+        /*
+        if(gameWorld.state == SchoolWorld.State.GAMEOVER) {
+            game.setScreen(new GameOverScreen(batch, game));
+        }*/
+
         // Use a FontComponent to render text. It will be processed by RenderingSystem
         //glyphLayout.setText(Assets.getMediumFont(), "Time: " + elapsedTime);
         //mediumFont.draw(batch, glyphLayout, )

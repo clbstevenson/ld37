@@ -295,9 +295,11 @@ public class CollisionSystem extends EntitySystem implements ContactListener {
             }
         } else if(bounds.contains(entityA, true) && (children.contains(entityB, true) || books.contains(entityB, true))) {
             Gdx.app.log("Collision System", "1 Removing child/book after collision with a boundary.");
+            gameWorld.processChildBoundaryHit(entityB.getComponent(BodyComponent.class).body.getUserData());
             removeEntities.add(entityB);
         } else if(bounds.contains(entityB, true) && (children.contains(entityA, true) || books.contains(entityA, true))) {
             Gdx.app.log("Collision System", "2 Removing child/book after collision with a boundary.");
+            gameWorld.processChildBoundaryHit(entityB.getComponent(BodyComponent.class).body.getUserData());
             removeEntities.add(entityA);
         } else {
             // do nothing

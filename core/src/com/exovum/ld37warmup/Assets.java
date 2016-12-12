@@ -74,9 +74,11 @@ public class Assets {
     private static Class<Music> MUSIC = Music.class;
 
     public static TextureRegion splashScreen;
+    public static TextureRegion gameOver;
 
     private static void loadSplash() {
         splashScreen = new TextureRegion(new Texture("ld37-bg-2.jpg"));//"ld37-bg.png"));
+        gameOver = new TextureRegion(new Texture("gameover.png"));
     }
 
     public static Array<TextureAtlas.AtlasRegion> getBallArray() {
@@ -189,4 +191,5 @@ public class Assets {
             return am.get("sounds/" + soundname);
         } else return null;
     }
+
 }
