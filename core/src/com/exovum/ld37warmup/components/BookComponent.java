@@ -15,6 +15,7 @@ public class BookComponent implements Component{
     public static final String STATE_CAUGHT = "CAUGHT"; //"TREE_LIGHTS";
     public static final float WIDTH = 3f;
     public static final float HEIGHT = 4f;
+    public BookTitle title;
 
 
     public enum BookTitle {

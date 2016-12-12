@@ -1,6 +1,7 @@
 package com.exovum.ld37warmup.systems;
 
 import com.badlogic.ashley.core.ComponentMapper;
+import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.SortedIteratingSystem;
@@ -12,6 +13,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.exovum.ld37warmup.SchoolWorld;
+import com.exovum.ld37warmup.components.BodyComponent;
 import com.exovum.ld37warmup.components.FontComponent;
 import com.exovum.ld37warmup.components.TextureComponent;
 import com.exovum.ld37warmup.components.TransformComponent;
@@ -26,12 +28,17 @@ public class FontSystem extends SortedIteratingSystem {
     static final float FRUSTUM_HEIGHT = Gdx.graphics.getHeight();
         // SchoolWorld.WORLD_HEIGHT; // 30f;//300f;//Gdx.graphics.getHeight()/PPM;//.0f;
 
+
     private final float RATIO_WIDTH = Gdx.graphics.getWidth() / SchoolWorld.WORLD_WIDTH;
     private final float RATIO_HEIGHT = Gdx.graphics.getHeight() / SchoolWorld.WORLD_HEIGHT;
     public static final float PIXELS_TO_METRES = 1.0f / PPM;
 
     private static Vector2 meterDimensions = new Vector2();
     private static Vector2 pixelDimensions = new Vector2();
+
+    private Array<Entity> removeEntities;
+    private Engine engine;
+
     public static Vector2 getScreenSizeInMeters(){
         meterDimensions.set(Gdx.graphics.getWidth()*PIXELS_TO_METRES,
                             Gdx.graphics.getHeight()*PIXELS_TO_METRES);
@@ -62,6 +69,8 @@ public class FontSystem extends SortedIteratingSystem {
         fontM = ComponentMapper.getFor(FontComponent.class);
 
         renderQueue = new Array<>();
+
+        removeEntities = new Array<>();
 
         // CONFIRMED: Add a comparator so the queue.sort doesn't crash *crosses fingers*
 
@@ -121,16 +130,42 @@ public class FontSystem extends SortedIteratingSystem {
             //      RenderingSystem uses the World width/height which is approx 40x30.
             font.font.draw(batch, font.glyph, (RATIO_WIDTH * t.position.x - glyph.width / 2),
                     (RATIO_HEIGHT* t.position.y - glyph.height / 2));
+            // Update the font timer
+            if(font.type != FontComponent.TYPE.PERM) {
+                if(font.displayTime < 0 ) {
+                    font.displayTime -= deltaTime;
+                    removeEntities.add(entity);
+                }
+            }
+
         }
 
         batch.end();
+
+        // Remove everything from the entity and then kill the entity too
+        for(Entity e: removeEntities) {
+            FontComponent deadFont = fontM.get(e);
+            if(deadFont != null) {
+                deadFont.font.dispose();
+                engine.removeEntity(e);
+            }
+        }
+        removeEntities.clear();
+
         renderQueue.clear();
+
     }
 
     @Override
     public void processEntity(Entity entity, float deltaTime) {
         renderQueue.add(entity);
         // remember to add entity to font queue so they can actually render
+    }
+
+    @Override
+    public void addedToEngine(Engine engine) {
+        this.engine = engine;
+
     }
 
     public OrthographicCamera getCamera() {

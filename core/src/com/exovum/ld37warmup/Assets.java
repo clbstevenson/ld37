@@ -113,6 +113,11 @@ public class Assets {
         return am.get(SPRITES_ATLAS, TEXTURE_ATLAS).findRegion("schoolhouse-2");
     }
 
+    public static TextureRegion getBackgroundSprite() {
+        Gdx.app.log("Assets", "Retrieving background sprite");
+        return am.get(SPRITES_ATLAS, TEXTURE_ATLAS).findRegion("background-1");
+    }
+
     public static BitmapFont getMediumFont() {
         Gdx.app.log("Assets", "Retrieving medium sitka font");
         if(am.isLoaded("fonts/sitka-medium.fnt"))

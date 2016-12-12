@@ -3,10 +3,12 @@ package com.exovum.ld37warmup;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.CircleShape;
+import com.badlogic.gdx.physics.box2d.EdgeShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
@@ -14,6 +16,7 @@ import com.exovum.ld37warmup.components.AnimationComponent;
 import com.exovum.ld37warmup.components.BodyComponent;
 import com.exovum.ld37warmup.components.BookComponent;
 import com.exovum.ld37warmup.components.BookComponent.BookTitle;
+import com.exovum.ld37warmup.components.BoundsComponent;
 import com.exovum.ld37warmup.components.ChildComponent;
 import com.exovum.ld37warmup.components.FontComponent;
 import com.exovum.ld37warmup.components.SchoolComponent;
@@ -35,7 +38,6 @@ public class SchoolWorld {
 
 
 
-
     // PS: Use an abstract World class next time that supplies the base info
     // connecting SchoolWorld and GameWorld together for simplification
 
@@ -43,11 +45,12 @@ public class SchoolWorld {
         RUNNING, PAUSED, GAMEOVER, GAMEWON, UPGRADE
     }
 
-    public static final short ENT_SCHOOL            = 0x0001;
-    public static final short ENT_FRIENDLY_BOOK     = 0x0002;
-    public static final short ENT_ENEMY_BOOK        = 0x0004;
-    public static final short ENT_FRIENDLY_CHILD    = 0x0008;
-    public static final short ENT_ENEMY_CHILD       = 0x00010;
+    public static final short ENT_SCHOOL            = 0x0001;  // 0b0000_0000_0000_0001
+    public static final short ENT_FRIENDLY_BOOK     = 0x0002;  // 0b0000_0000_0000_0010
+    public static final short ENT_ENEMY_BOOK        = 0x0004;  // 0b0000_0000_0000_0100
+    public static final short ENT_FRIENDLY_CHILD    = 0x0008;  // 0b0000_0000_0000_1000
+    public static final short ENT_ENEMY_CHILD       = 0x0010; // 0b0000_0000_0001_0000
+    public static final short ENT_BOUNDARY          = 0x0020;  // 0b0000_0000_0010_0000
 
     public static final short GROUP_SCHOOL = 1;
     public static final short GROUP_BOOK = -2;
@@ -57,17 +60,21 @@ public class SchoolWorld {
     // TODO: array of cooldown timers?
     private float cooldown, childCooldown;
     private Random random;
+    private boolean paused;
 
     State state;
 
     World physicsWorld;
-    public static final float PIXELS_TO_METERS = 16f;
+    public static final float PIXELS_TO_METERS = 16f; //16f;
+    public static Vector2 screenInMeters = RenderingSystem.getScreenSizeInMeters();
 
     public static final float WORLD_WIDTH = 40f; // TODO: To Be Determined. Check with RenderingSystem
     public static final float WORLD_HEIGHT = 30f; // TODO: TBD. Check with RenderingSystem
 
     PooledEngine engine;
     Entity school;
+
+    Entity leftText, rightText;
 
     public SchoolWorld(PooledEngine engine, World world) {
         this.engine = engine;
@@ -85,11 +92,25 @@ public class SchoolWorld {
 
         school = generateSchool(WORLD_WIDTH / 2, WORLD_HEIGHT - SchoolComponent.HEIGHT * 3 / 4);
 
+        generateBackground();
+        generateEmptyTextAreas("candara20.fnt");
+        leftText.getComponent(FontComponent.class).setText("LEFT AREA IS THE BEST AREA YEAH MAN SO COOL");
+        rightText.getComponent(FontComponent.class).setText("Right Area is much more docile and well-behaved when compared to the left area.");
+
+        //generateBounds(WORLD_WIDTH * 2,5,WORLD_WIDTH + 10, WORLD_HEIGHT * 2);
+        //new Vector2(screenInMeters.x - 2, screenInMeters.y / 2);
+        //bodyShape.setAsBox(1, screenInMeters.y / 4);//, new Vector2(screenInMeters.x / 2, screenInMeters.y / 2), 0f);
+        generateBounds(screenInMeters.x + 10, 1f, 1f, screenInMeters.y);
+        generateBounds(-10, 1f, 1f, screenInMeters.y);
+        //generateBoundsLine(WORLD_WIDTH  / 2 + 5, 0, WORLD_WIDTH / 2 + 5, WORLD_HEIGHT);
+
         generateTextWithFont("One Room Schoolhouse", WORLD_WIDTH / 2, WORLD_HEIGHT,
-                "candara36b.fnt");
+                "candara36b.fnt", FontComponent.TYPE.PERM);
         generateTextWithFont(BookComponent.getRandomQuote(BookTitle.MOCKING, random),
-                WORLD_WIDTH / 2, WORLD_HEIGHT / 4, "candara20.fnt");
+                WORLD_WIDTH / 2, WORLD_HEIGHT / 4, "candara20.fnt", FontComponent.TYPE.TEMP);
         generateText("A Simple Text", 10f, 10f);//WORLD_WIDTH / 2, WORLD_HEIGHT - SchoolComponent.HEIGHT);
+
+        //generateTextWithFont("")
 
 
         // addChild();
@@ -99,22 +120,64 @@ public class SchoolWorld {
     }
 
     public void update(float delta) {
-        //Gdx.app.log("School World", "Updating school world and cooldowns");
-        // '1' cooldown = 1 second. so don't set cooldown to 1000
-        cooldown -= delta;
-        childCooldown -= delta;
+        if(!paused) {
+            //Gdx.app.log("School World", "Updating school world and cooldowns");
+            // '1' cooldown = 1 second. so don't set cooldown to 1000
+            cooldown -= delta;
+            childCooldown -= delta;
 
-        // create a new child every 0.5 seconds?
-        if(childCooldown < 0) {
-            createChild();
-            childCooldown = 1f;
+            // create a new child every childCooldown seconds?
+            if (childCooldown < 0) {
+                createChild();
+                childCooldown = 4f;
+            }
+
+            sweepDeadBodies();
         }
-
-        sweepDeadBodies();
         //Gdx.app.log("School World", "Updating School World. cooldown: " + cooldown);
+    }
+    public void pause(boolean paused) {
+        this.paused = paused;
+    }
+
+    public boolean isPaused() {
+        return paused;
     }
 
     private void sweepDeadBodies() {
+    }
+
+    private void generateEmptyTextAreas(String fontname) {
+        Gdx.app.log("School World", "Setting up the text areas to display the BookCP.quote");
+        Entity e1 = engine.createEntity();
+        Entity e2 = engine.createEntity();
+
+        FontComponent font1 = engine.createComponent(FontComponent.class);
+        TransformComponent position1 = engine.createComponent(TransformComponent.class);
+
+        FontComponent font2 = engine.createComponent(FontComponent.class);
+        TransformComponent position2 = engine.createComponent(TransformComponent.class);
+
+        font1.font = Assets.getFont(fontname);
+        font1.glyph = new GlyphLayout();
+        font1.targetWidth = 15f;
+        font2.font = Assets.getFont(fontname);
+        font2.glyph = new GlyphLayout();
+        font2.targetWidth = 5f;
+        font2.color = Color.RED;
+
+        position1.position.set(WORLD_WIDTH / 2 - WORLD_WIDTH / 4,
+                WORLD_HEIGHT / 2, 4f);//- SchoolComponent.HEIGHT* 3 / 4, 4f);
+        position2.position.set(WORLD_WIDTH - 2f, WORLD_HEIGHT / 2, 4f);
+
+        e1.add(font1);
+        e1.add(position1);
+
+        e2.add(font2);
+        e2.add(position2);
+
+        leftText = e1;
+        rightText = e2;
     }
 
     private void generateText(String text, float x, float y) {
@@ -139,7 +202,7 @@ public class SchoolWorld {
         engine.addEntity(e);
     }
 
-    private void generateTextWithFont(String text, float x, float y, String fontname) {
+    private void generateTextWithFont(String text, float x, float y, String fontname, FontComponent.TYPE fontType) {
         Gdx.app.log("School World", "Generating font text entity");
         Entity e = engine.createEntity();
 
@@ -151,12 +214,141 @@ public class SchoolWorld {
         font.font = Assets.getFont(fontname);
         font.glyph = new GlyphLayout();
         font.glyph.setText(font.font, text);
+        if(fontType != FontComponent.TYPE.PERM)
+            font.displayTime = 2.5f;
 
         position.position.set(x, y, 2.0f); //TODO compare z-value with School's z-value
 
         //Remembering to add the components to the entity is a good idea
         e.add(font);
         e.add(position);
+
+        engine.addEntity(e);
+    }
+
+    /**
+     * Generates a bounding Body component starting at (x,y) with specified width and height
+     * @param x starting point
+     * @param y starting point
+     * @param width width of the boundary
+     * @param height height of the boundary
+     */
+    private void generateBounds(float x, float y, float width, float height) {
+        Entity e = engine.createEntity();
+
+        TransformComponent position = engine.createComponent(TransformComponent.class);
+        BodyComponent body = engine.createComponent(BodyComponent.class);
+        BoundsComponent bounds = engine.createComponent(BoundsComponent.class);
+
+        position.position.set(x, y, 0f);
+
+        BodyDef bodyDef = new BodyDef();
+        bodyDef.type = BodyDef.BodyType.StaticBody;
+        bodyDef.position.set(x, y);
+
+        body.body = physicsWorld.createBody(bodyDef);
+        PolygonShape bodyShape = new PolygonShape();
+        //bodyShape.setAsBox(2, screenInMeters.y / 4);//, new Vector2(screenInMeters.x / 2, screenInMeters.y / 2), 0f);
+        bodyShape.setAsBox(width, height);
+        ////width / 8, height / 8);//width/PIXELS_TO_METERS, height/PIXELS_TO_METERS);
+
+        FixtureDef fixtureDef = new FixtureDef();
+        fixtureDef.shape = bodyShape;
+        fixtureDef.density = 1f;
+        fixtureDef.friction = 0.4f;
+        fixtureDef.restitution = 2f;
+        fixtureDef.filter.categoryBits = ENT_BOUNDARY;
+        // Schools collide with Enemy Child and Friendly Child
+        fixtureDef.filter.maskBits = ENT_ENEMY_CHILD | ENT_FRIENDLY_CHILD | ENT_FRIENDLY_BOOK;
+
+        //fixtureDef.filter.groupIndex = GROUP_BOOK;
+
+        body.body.createFixture(fixtureDef);
+        bodyShape.dispose();
+
+        e.add(position);
+        e.add(body);
+        e.add(bounds);
+
+        engine.addEntity(e);
+        body.body.setUserData(new EntityData(e));
+        //body.body.setUserData(e);
+    }
+
+    /**
+     * Generates a bounding Body component starting at (x,y) with specified width and height
+     * @param x1 starting point x-value
+     * @param y1 starting point y-value
+     * @param x2 ending point x-value
+     * @param y2 ending point y-value
+     */
+    private void generateBoundsLine(float x1, float y1, float x2, float y2) {
+        Entity e = engine.createEntity();
+
+        TransformComponent position = engine.createComponent(TransformComponent.class);
+        BodyComponent body = engine.createComponent(BodyComponent.class);
+
+        position.position.set(x1, y1, 0f);
+
+        BodyDef bodyDef = new BodyDef();
+        bodyDef.type = BodyDef.BodyType.StaticBody;
+        bodyDef.position.set(x1, y1);
+
+        body.body = physicsWorld.createBody(bodyDef);
+        EdgeShape bodyShape = new EdgeShape();
+        bodyShape.set(x1/PIXELS_TO_METERS, y1/PIXELS_TO_METERS, x2/PIXELS_TO_METERS, y2/PIXELS_TO_METERS);
+
+        FixtureDef fixtureDef = new FixtureDef();
+        fixtureDef.shape = bodyShape;
+        fixtureDef.density = 1f;
+        fixtureDef.friction = 0.4f;
+        fixtureDef.restitution = 2f;
+        fixtureDef.filter.categoryBits = ENT_BOUNDARY;
+        // Schools collide with Enemy Child and Friendly Child
+        fixtureDef.filter.maskBits = ENT_ENEMY_CHILD | ENT_FRIENDLY_CHILD | ENT_FRIENDLY_BOOK;
+
+        //fixtureDef.filter.groupIndex = GROUP_BOOK;
+
+        body.body.createFixture(fixtureDef);
+        bodyShape.dispose();
+
+        e.add(position);
+        e.add(body);
+
+        engine.addEntity(e);
+
+        EntityData data = new EntityData(e);
+        body.body.setUserData(data);
+    }
+
+    private void generateBackground() {
+        Entity e = engine.createEntity();
+
+        // make it a school entity
+        //SchoolComponent school = engine.createComponent(SchoolComponent.class);
+        // Use Texture instead of AnimationComponent because the School is just a sprite
+        TextureComponent texture = engine.createComponent(TextureComponent.class);
+        //StateComponent state = engine.createComponent(StateComponent.class);
+        TransformComponent position = engine.createComponent(TransformComponent.class);
+
+        texture.region = Assets.getBackgroundSprite();
+
+        // TODO scale the texture to fit SchoolComponent width and height
+        float scaleX = WORLD_WIDTH/ (RenderingSystem.PixelsToMeters(texture.region.getRegionWidth()));
+        float scaleY = WORLD_HEIGHT / (RenderingSystem.PixelsToMeters(texture.region.getRegionHeight()));
+
+        //position.position.set(x - SchoolComponent.WIDTH, y, 1.0f);
+        position.position.set(WORLD_WIDTH / 2, WORLD_HEIGHT / 2, 20.0f); // does a lower z-value mean closer or farther?
+        // I believe low z-values means closer to the "top"
+        // so high-z values will appear UNDER low-z values
+        position.scale.set(scaleX, scaleY);  //0.75f, 0.5f);
+        //position.scale.set(0.5f, 0.5f);
+
+        //state.set(SchoolComponent.STATE_NORMAL);
+
+        e.add(texture);
+        e.add(position);
+        //e.add(state);
 
         engine.addEntity(e);
     }
@@ -234,7 +426,8 @@ public class SchoolWorld {
         e.add(body);
 
         engine.addEntity(e);
-        body.body.setUserData(e);
+        EntityData data = new EntityData(e);
+        body.body.setUserData(data);
         return e;
     }
 
@@ -291,6 +484,7 @@ public class SchoolWorld {
         BodyComponent body = new BodyComponent();
 
         BookTitle title = getBookTitleByID(bookid);
+        book.title = title;
 
         state.set(BookComponent.STATE_THROWN);
 
@@ -331,7 +525,7 @@ public class SchoolWorld {
         //fixtureDef.filter.groupIndex = GROUP_BOOK;
         fixtureDef.filter.categoryBits = ENT_FRIENDLY_BOOK;
         // Books collide with Enemy Child, but NOT Friendly Child
-        fixtureDef.filter.maskBits = ENT_ENEMY_CHILD;
+        fixtureDef.filter.maskBits = ENT_ENEMY_CHILD | ENT_BOUNDARY;
 
 
         // calculate force needed to push object from (fromX, fromY) to (toX, toY);
@@ -388,7 +582,8 @@ public class SchoolWorld {
 
         engine.addEntity(e);
         // add the entity as user data to the body - used for collisions
-        body.body.setUserData(e);
+        EntityData data = new EntityData(e);
+        body.body.setUserData(data);
     }
 
     /**
@@ -444,7 +639,7 @@ public class SchoolWorld {
         //fixtureDef.filter.groupIndex = GROUP_CHILD;
         fixtureDef.filter.categoryBits = ENT_ENEMY_CHILD;
         // Children collide with School, Friendy Book, and Enemy Book
-        fixtureDef.filter.maskBits = ENT_SCHOOL | ENT_FRIENDLY_BOOK | ENT_ENEMY_BOOK;
+        fixtureDef.filter.maskBits = ENT_SCHOOL | ENT_FRIENDLY_BOOK | ENT_ENEMY_BOOK | ENT_BOUNDARY;
 
         // TODO consider moving children at diagonals with direction.y
         Vector2 direction = new Vector2((position.position.x < WORLD_WIDTH / 2) ? 5f : -5f,
@@ -469,7 +664,8 @@ public class SchoolWorld {
 
         engine.addEntity(e);
         // add the entity as user data to the body - used for collisions
-        body.body.setUserData(e);
+        EntityData data = new EntityData(e);
+        body.body.setUserData(data);
     }
 
     // Veloctiy/Direction helper methods
@@ -485,5 +681,18 @@ public class SchoolWorld {
 
         //body.body.setLinearVelocity(direction.scl(speed));
         return direction.scl(speed);
+    }
+
+    public void updateTextField(Object userData) {
+        Gdx.app.log("School World", "Updating text field based on user data");
+        //BookComponent book = ((BookComponent)userData);
+        EntityData data = ((EntityData)userData);
+        Entity e = data.getData(1);
+        BookComponent book = e.getComponent(BookComponent.class);
+        if(book == null) // do nothing
+            return;
+        //TODO: update text field with a random quote from book
+        generateTextWithFont(BookComponent.getRandomQuote(book.title,random),WORLD_WIDTH/2, 1f,
+                "candara20.fnt", FontComponent.TYPE.TEMP);
     }
 }

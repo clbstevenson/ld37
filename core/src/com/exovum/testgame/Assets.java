@@ -22,12 +22,13 @@ public class Assets {
 
         am = new AssetManager();
         am.load(ANI_ATLAS, TEXTURE_ATLAS);
-        am.load("animations/animation-copy.atlas", TEXTURE_ATLAS);
-        am.load("animations/animation-copy-2.atlas", TEXTURE_ATLAS);
-        am.load("animations/animations.png", Texture.class);
-        am.load("animations/animations2.png", Texture.class);
-        am.load("animations/animations3.png", Texture.class);
-        am.load("animations/animations4.png", Texture.class);
+        //am.load("animations/animation-copy.atlas", TEXTURE_ATLAS);
+        //am.load("animations/animation-copy-2.atlas", TEXTURE_ATLAS);
+        //am.load("animations/animations.png", Texture.class);
+        //am.load("animations/animations2.png", Texture.class);
+        //am.load("animations/animations3.png", Texture.class);
+        //am.load("animations/animations4.png", Texture.class);
+
         //am.load(SPRITE_ATLAS, TEXTURE_ATLAS);
         //am.load(FONT, BITMAP_FONT);
 

@@ -29,6 +29,7 @@ public class SchoolGameScreen extends ScreenAdapter {
     Game game; // May need to change this to LD37Game type. Maybe not though
 
     private boolean initialized;
+    private boolean paused;
     private float elapsedTime = 0f;
     private World world; // Box2D World
 
@@ -100,9 +101,9 @@ public class SchoolGameScreen extends ScreenAdapter {
 
     private void update(float delta) {
         engine.update(delta);
-        gameWorld.update(delta);
+            gameWorld.update(delta);
 
-        elapsedTime += delta;
+            elapsedTime += delta;
 
         // Use a FontComponent to render text. It will be processed by RenderingSystem
         //glyphLayout.setText(Assets.getMediumFont(), "Time: " + elapsedTime);
@@ -114,12 +115,55 @@ public class SchoolGameScreen extends ScreenAdapter {
 
     @Override
     public void render(float delta) {
-        // if everything is ready, then update. otherwise need to setup game world
-        if(initialized) {
-            update(delta);
-        } else {
-            init();
+        // If the Screen is not paused, then continue updating everything [engine, world, etc]
+        //if(!paused) {
+            // if everything is ready, then update. otherwise need to setup game world
+            if (initialized) {
+                update(delta);
+            } else {
+                init();
+            }
+        //}
+    }
+
+    private void setEngineOn(boolean turnOn) {
+        if(engine != null) {
+            Gdx.app.log("School Game Screen", "Setting engine to " + turnOn);
+            gameWorld.pause(!turnOn);
+            // If turning on the engine, set processing to true. otherwise turn them false
+            if (engine.getSystem(PhysicsSystem.class) != null)
+                engine.getSystem(PhysicsSystem.class).setProcessing(turnOn);
+            if (engine.getSystem(PhysicsDebugSystem.class) != null)
+                engine.getSystem(PhysicsDebugSystem.class).setProcessing(turnOn);
+            if (engine.getSystem(CollisionSystem.class) != null)
+                engine.getSystem(CollisionSystem.class).setProcessing(turnOn);
+            if (engine.getSystem(AnimationSystem.class) != null)
+                engine.getSystem(AnimationSystem.class).setProcessing(turnOn);
         }
+    }
+
+    @Override
+    public void hide() {
+        paused = true;
+        setEngineOn(false);
+    }
+
+    @Override
+    public void show() {
+        paused = false;
+        setEngineOn(true);
+    }
+
+    @Override
+    public void pause() {
+        paused = true;
+        setEngineOn(false);
+    }
+
+    @Override
+    public void resume() {
+        paused = false;
+        setEngineOn(true);
     }
 
 }

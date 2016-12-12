@@ -6,6 +6,7 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.EntitySystem;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.utils.ImmutableArray;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Contact;
@@ -16,9 +17,11 @@ import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.Manifold;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
+import com.exovum.ld37warmup.EntityData;
 import com.exovum.ld37warmup.SchoolWorld;
 import com.exovum.ld37warmup.components.BodyComponent;
 import com.exovum.ld37warmup.components.BookComponent;
+import com.exovum.ld37warmup.components.BoundsComponent;
 import com.exovum.ld37warmup.components.ChildComponent;
 import com.exovum.ld37warmup.components.SchoolComponent;
 import com.exovum.ld37warmup.components.StateComponent;
@@ -51,6 +54,7 @@ public class CollisionSystem extends EntitySystem implements ContactListener {
     private ImmutableArray<Entity> books;
     private ImmutableArray<Entity> children;
     private ImmutableArray<Entity> school;
+    private ImmutableArray<Entity> bounds;
 
     private Array<Entity> removeEntities;
     private Array<Entity> removeBodyPhysics;
@@ -80,6 +84,8 @@ public class CollisionSystem extends EntitySystem implements ContactListener {
                 TransformComponent.class, StateComponent.class).get());
         school = engine.getEntitiesFor(Family.all(SchoolComponent.class, BodyComponent.class,
                 TransformComponent.class, StateComponent.class).get());
+        bounds = engine.getEntitiesFor(Family.all(BoundsComponent.class, BodyComponent.class,
+                TransformComponent.class).get());
     }
 
     @Override
@@ -132,8 +138,10 @@ public class CollisionSystem extends EntitySystem implements ContactListener {
         Fixture b = contact.getFixtureB();
         Body bodyA = a.getBody();
         Body bodyB = b.getBody();
-        Entity entityA = ((Entity)bodyA.getUserData());
-        Entity entityB = ((Entity)bodyB.getUserData());
+        EntityData dataA = ((EntityData)bodyA.getUserData());
+        EntityData dataB = ((EntityData)bodyB.getUserData());
+        Entity entityA = ((Entity)dataA.getFirst());
+        Entity entityB = ((Entity)dataB.getFirst());
 
         // TODO check if == comparison or .equals comparision should be used
         // Currently set to: true == comparison
@@ -149,6 +157,10 @@ public class CollisionSystem extends EntitySystem implements ContactListener {
 
                 bookState.set(BookComponent.STATE_CAUGHT);
                 childState.set(ChildComponent.STATE_READING);
+
+                // Store the BookComponent data as the UserData in the child
+                dataB.addData(dataA.getFirst());
+                //childBody.body.setUserData(bookBody.body.getUserData());
 
                 bookBody.body.setLinearVelocity(0f, 0f);
                 childBody.body.setLinearVelocity(0f, 0f);
@@ -196,6 +208,10 @@ public class CollisionSystem extends EntitySystem implements ContactListener {
                 bookState.set(BookComponent.STATE_CAUGHT);
                 childState.set(ChildComponent.STATE_READING);
 
+                // Store the BookComponent data as the UserData in the child
+                dataA.addData(dataB.getFirst());
+                //childBody.body.setUserData(bookBody.body.getUserData());
+
                 bookBody.body.setLinearVelocity(0f, 0f);
                 childBody.body.setLinearVelocity(0f, 0f);
                 // Calculate velocity values to go from current position back to the school
@@ -234,6 +250,10 @@ public class CollisionSystem extends EntitySystem implements ContactListener {
             if(childState.get().equals(ChildComponent.STATE_READING)) {
                 childState.set(ChildComponent.STATE_RELEASED);
 
+                // update the text to the random quote stored from the book that hit the child
+                //gameWorld.updateTextField(childBody.body.getUserData());
+                gameWorld.updateTextField(dataB);
+
                 if(schoolPos.position.x > childPos.position.x) {
                     childBody.body.setLinearVelocity(-15f, 0f);
                 } else {
@@ -249,10 +269,14 @@ public class CollisionSystem extends EntitySystem implements ContactListener {
             TransformComponent childPos = posM.get(entityA);
             TransformComponent schoolPos = posM.get(entityB);
 
-            if(childState.get().equals(ChildComponent.STATE_READING)) {
+            if (childState.get().equals(ChildComponent.STATE_READING)) {
                 childState.set(ChildComponent.STATE_RELEASED);
 
-                if(schoolPos.position.x > childPos.position.x) {
+                // update the text to the random quote stored from the book that hit the child
+                //gameWorld.updateTextField(childBody.body.getUserData());
+                gameWorld.updateTextField(dataA);
+
+                if (schoolPos.position.x > childPos.position.x) {
                     childBody.body.setLinearVelocity(-15f, 0f);
                 } else {
                     childBody.body.setLinearVelocity(15f, 0f);
@@ -260,6 +284,12 @@ public class CollisionSystem extends EntitySystem implements ContactListener {
                 // Remove the Physics body from the child, but keep the rest of the components
                 //removeBodyPhysics.add(entityA);
             }
+        } else if(bounds.contains(entityA, true) && children.contains(entityB, true)) {
+            Gdx.app.log("Collision System", "1 Removing child after collision with a boundary.");
+            removeEntities.add(entityB);
+        } else if(bounds.contains(entityB, true) && children.contains(entityA, true)) {
+            Gdx.app.log("Collision System", "2 Removing child after collision with a boundary.");
+            removeEntities.add(entityA);
         } else {
             // do nothing
         }
