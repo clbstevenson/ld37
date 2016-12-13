@@ -49,6 +49,7 @@ public class Assets {
         am.load("fonts/sitka-medium.fnt", BitmapFont.class);
         am.load("fonts/candara12.fnt", BitmapFont.class); // 12 font
         am.load("fonts/candara20.fnt", BitmapFont.class); // 20 font
+        am.load("fonts/candara16b.fnt", BitmapFont.class); // 16 BOLD font
         am.load("fonts/candara36b.fnt", BitmapFont.class); //36 BOLD font
 
         // Setup static resources

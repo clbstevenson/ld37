@@ -76,8 +76,13 @@ public class SchoolWorld {
     Entity school;
 
     Entity leftText, rightText;
-    Entity textEntity;
+    // Entity used for drawing the current book quote
+    Entity quoteEntity;
+    // Entity used for tracking how many children have escaped and the maximum
     Entity healthEntity;
+    // Entity for tracking and displaying points
+    Entity pointsEntity;
+
 
     Music music;
 
@@ -101,9 +106,11 @@ public class SchoolWorld {
         maxChildren = 10;
 
         music = Assets.getMusic();
-        music.setVolume(0.25f);
-        music.setLooping(true);
-        music.play();
+        if(music != null) {
+            music.setVolume(0.25f);
+            music.setLooping(true);
+            music.play();
+        }
 
         // initially create a
         //physicsWorld = new World(new Vector2(0f, 0f), true);
@@ -124,10 +131,15 @@ public class SchoolWorld {
         generateBounds(-10, 1f, 1f, screenInMeters.y);
 
         healthEntity = generateTextWithFont("Escaped Children: " + missedChildren + " / " + maxChildren,
-                WORLD_WIDTH /2 + 3, WORLD_HEIGHT, "candara12.fnt", Color.WHITE);
+                WORLD_WIDTH - 7, WORLD_HEIGHT-2, "candara20.fnt", Color.WHITE);
         //generateBoundsLine(WORLD_WIDTH  / 2 + 5, 0, WORLD_WIDTH / 2 + 5, WORLD_HEIGHT);
+        pointsEntity = generateTextWithFont("Points " + points,
+                3, WORLD_HEIGHT-2, "candara20.fnt", Color.WHITE);
 
-        generateTextWithFont("One Room Schoolhouse", WORLD_WIDTH / 2.5f, WORLD_HEIGHT,
+        pointsEntity.getComponent(FontComponent.class).glyph.setText(
+                pointsEntity.getComponent(FontComponent.class).font, "Points: " + points);
+
+        generateTextWithFont("One Room Schoolhouse", WORLD_WIDTH / 2, WORLD_HEIGHT,
                 "candara36b.fnt", Color.WHITE);
         //generateTextWithFont(BookComponent.getRandomQuote(BookTitle.MOCKING, random),
         //        WORLD_WIDTH / 2, WORLD_HEIGHT / 4, "candara20.fnt", Color.WHITE);//, FontComponent.TYPE.TEMP);
@@ -180,6 +192,8 @@ public class SchoolWorld {
 
     public void addPoints(int morePoints) {
         points += morePoints;
+        FontComponent pointsFont = pointsEntity.getComponent(FontComponent.class);
+        pointsFont.glyph.setText(pointsFont.font, "Points: " + points);
     }
 
     private void playSoundBookChild() {
@@ -202,26 +216,31 @@ public class SchoolWorld {
         addPoints(2);
         Assets.getSoundByName("points.wav").play(0.5f);
         Gdx.app.log("School World", "Child-School Hit. Points: " + points);
-        if(textEntity != null)
-            textEntity.removeAll();
-        textEntity = generateTextWithFont(getTextFromEntityData(entityData),
-                WORLD_WIDTH / 2 , 5, "candara20.fnt", Color.BLACK);
+        if(quoteEntity != null)
+            quoteEntity.removeAll();
+        quoteEntity = generateTextWithFont(getTextFromEntityData(entityData),
+                WORLD_WIDTH / 2 - 1 , 5, "candara16b.fnt", Color.BLACK);
 
     }
 
     public void processChildBoundaryHit(Object data) {
         EntityData entityData = ((EntityData)data);
+        if(entityData.getFirst().getComponent(BookComponent.class) != null) {
+            // do nothing with health/missedChildren if the entity is a book
+            return;
+        }
         Gdx.app.log("School World", "Child-Boundary Hit. Lose points/health/something");
 
         if(missedChildren >= maxChildren) {
             // switch to gameover
             this.state = State.GAMEOVER;
+            Gdx.app.log("School World", "Miissed too many children. State = GAMEOVER");
         } else {
             missedChildren++;
             if(healthEntity != null)
                 healthEntity.removeAll();
             healthEntity = generateTextWithFont("Escaped Children: " + missedChildren + " / " + maxChildren,
-                    WORLD_WIDTH /2 + 3, WORLD_HEIGHT, "candara12.fnt", Color.WHITE);
+                    WORLD_WIDTH - 7, WORLD_HEIGHT - 2, "candara20.fnt", Color.WHITE);
         }
     }
 
@@ -323,7 +342,9 @@ public class SchoolWorld {
         font.font = Assets.getFont(fontname);
         font.glyph = new GlyphLayout();
     // **font.glyph.setText(font.font, text);
-        font.glyph.setText(font.font, text, color, RenderingSystem.getScreenSizeInPixels().x * 0.8f, Align.center, true);
+        font.glyph.setText(font.font, text);
+        float targetWidth = Math.min(font.glyph.width, RenderingSystem.getScreenSizeInPixels().x * 0.8f);
+        font.glyph.setText(font.font, text, color, targetWidth, Align.center, true);
         //font.type = FontComponent.TYPE.PERM;
 
         position.position.set(x, y, 2.0f); //TODO compare z-value with School's z-value
