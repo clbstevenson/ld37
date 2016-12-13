@@ -14,20 +14,25 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 public class GameOverScreen implements Screen {
     SpriteBatch batch;
     Game game;
+    IScreenDispatcher dispatcher;
 
-    public GameOverScreen(SpriteBatch batch, Game game) {
+    public GameOverScreen(Game game, SpriteBatch batch, IScreenDispatcher screenDispatcher) {
         this.batch = batch;
         this.game = game;
+        this.dispatcher = screenDispatcher;
     }
 
     @Override
     public void show() {
+        Gdx.app.log("Game Over Screen", "Switched to GameOverScreen");
         Gdx.input.setInputProcessor(new InputProcessor() {
             @Override
             public boolean keyDown(int keycode) {
                 if(keycode == Input.Keys.SPACE) {
+                    Gdx.app.log("Game Over Screen", "Ending game over screen");
                     // reset
-                    game.setScreen(new SchoolGameScreen(game, batch, LD37Game.screenDispatcher));
+                    //game.setScreen(new SchoolGameScreen(game, batch, LD37Game.screenDispatcher));
+                    dispatcher.endCurrentScreen();
                     return true;
                 }
                 return false;
@@ -46,7 +51,8 @@ public class GameOverScreen implements Screen {
             @Override
             public boolean touchDown(int screenX, int screenY, int pointer, int button) {
                 // reset
-                game.setScreen(new SchoolGameScreen(game, batch, LD37Game.screenDispatcher));
+                //game.setScreen(new SchoolGameScreen(game, batch, LD37Game.screenDispatcher));
+                //dispatcher.endCurrentScreen();
                 return true;
             }
 
@@ -76,7 +82,7 @@ public class GameOverScreen implements Screen {
     @Override
     public void render(float delta) {
         batch.begin();
-        batch.draw(Assets.splashScreen, 0f, 0f, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        batch.draw(Assets.gameOver, 0f, 0f, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         batch.end();
     }
 

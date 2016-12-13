@@ -52,5 +52,10 @@ public class SplashScreenWarmup extends ScreenAdapter {
         }
     }
 
+    @Override
+    public void show() {
+        Gdx.app.log("Splash Screen", "Switched to SplashScreen");
+    }
+
 }
 

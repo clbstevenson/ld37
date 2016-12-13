@@ -105,11 +105,12 @@ public class SchoolGameScreen extends ScreenAdapter {
 
         elapsedTime += delta;
 
-        /*
         if(gameWorld.state == SchoolWorld.State.GAMEOVER) {
-            game.setScreen(new GameOverScreen(batch, game));
-        }*/
-
+            dispatcher.endCurrentScreen();
+            // Game is over, so reset the data to be used later.
+            gameWorld.state = SchoolWorld.State.RUNNING;
+            gameWorld.reset();
+        }
         // Use a FontComponent to render text. It will be processed by RenderingSystem
         //glyphLayout.setText(Assets.getMediumFont(), "Time: " + elapsedTime);
         //mediumFont.draw(batch, glyphLayout, )
@@ -133,7 +134,7 @@ public class SchoolGameScreen extends ScreenAdapter {
 
     private void setEngineOn(boolean turnOn) {
 
-        /*
+
         if(engine != null) {
             Gdx.app.log("School Game Screen", "Setting engine to " + turnOn);
             gameWorld.pause(!turnOn);
@@ -147,31 +148,32 @@ public class SchoolGameScreen extends ScreenAdapter {
             if (engine.getSystem(AnimationSystem.class) != null)
                 engine.getSystem(AnimationSystem.class).setProcessing(turnOn);
         }
-        */
     }
 
     @Override
     public void hide() {
         paused = true;
-        //setEngineOn(false);
+
+        setEngineOn(false);
     }
 
     @Override
     public void show() {
         paused = false;
-        //setEngineOn(true);
+        setEngineOn(true);
+        Gdx.app.log("School Game Screen", "Switched to SchoolGameScreen");
     }
 
     @Override
     public void pause() {
         paused = true;
-        //setEngineOn(false);
+        setEngineOn(false);
     }
 
     @Override
     public void resume() {
         paused = false;
-        //setEngineOn(true);
+        setEngineOn(true);
     }
 
 }

@@ -30,6 +30,10 @@ public class ScreenDispatcherWarmup implements IScreenDispatcher {
             isCurrenScreenEnded = false;
             //Do logic to pick the next screen
             currentIndex++;
+
+            if(currentIndex > screens.size()) {
+                currentIndex = 0;
+            }
         }
 
         if(screens.size() > currentIndex){

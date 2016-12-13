@@ -51,6 +51,8 @@ public class Assets {
         am.load("fonts/candara20.fnt", BitmapFont.class); // 20 font
         am.load("fonts/candara16b.fnt", BitmapFont.class); // 16 BOLD font
         am.load("fonts/candara36b.fnt", BitmapFont.class); //36 BOLD font
+        am.load("fonts/chawp18.fnt", BitmapFont.class); // 32 chalk font
+        am.load("fonts/chawp32.fnt", BitmapFont.class); // 32 chalk font
 
         // Setup static resources
         // TODO add this resources to the AssetManager
@@ -79,7 +81,7 @@ public class Assets {
 
     private static void loadSplash() {
         splashScreen = new TextureRegion(new Texture("ld37-bg-2.jpg"));//"ld37-bg.png"));
-        gameOver = new TextureRegion(new Texture("gameover.png"));
+        gameOver = new TextureRegion(new Texture("gameover-2.png"));
     }
 
     public static Array<TextureAtlas.AtlasRegion> getBallArray() {

@@ -58,8 +58,8 @@ public class SchoolWorld {
     public static final short GROUP_CHILD = -1;
 
     // Cooldown timer for controlling events such as throwing books
-    // TODO: array of cooldown timers?
-    private float cooldown, childCooldown;
+    // TODO: array of bookCooldown timers?
+    private float bookCooldown, childCooldown;
     private Random random;
     private boolean paused;
 
@@ -105,11 +105,14 @@ public class SchoolWorld {
         // maximum # of children that can be missed before game over
         maxChildren = 10;
 
+        // Reset the timer cooldowns
+        bookCooldown = 0f;
+        childCooldown = 0f;
+
         music = Assets.getMusic();
         if(music != null) {
             music.setVolume(0.25f);
             music.setLooping(true);
-            music.play();
         }
 
         // initially create a
@@ -157,8 +160,8 @@ public class SchoolWorld {
     public void update(float delta) {
         if(!paused) {
             //Gdx.app.log("School World", "Updating school world and cooldowns");
-            // '1' cooldown = 1 second. so don't set cooldown to 1000
-            cooldown -= delta;
+            // '1' bookCooldown = 1 second. so don't set bookCooldown to 1000
+            bookCooldown -= delta;
             childCooldown -= delta;
 
             // create a new child every childCooldown seconds?
@@ -169,10 +172,26 @@ public class SchoolWorld {
 
             sweepDeadBodies();
         }
-        //Gdx.app.log("School World", "Updating School World. cooldown: " + cooldown);
+        //Gdx.app.log("School World", "Updating School World. bookCooldown: " + bookCooldown);
     }
     public void pause(boolean paused) {
         this.paused = paused;
+        if(paused)
+            music.pause();
+        else
+            music.play();
+    }
+
+    /**
+     * Resets the game world. Used if the game is over [lost or won]
+     */
+    public void reset() {
+        // Remove all the entities from the engine
+        engine.removeAllEntities();
+        // reset points
+        //missedChildren = 0;
+        //points = 0;
+        create();
     }
 
     public boolean isPaused() {
@@ -594,7 +613,7 @@ public class SchoolWorld {
      * @param y y-value of target position
      */
     public void throwBook(float x, float y) {
-        if (cooldown < 0) {
+        if (bookCooldown < 0) {
             Gdx.app.log("School World", "Starting to throw book");
 
             // get a value from [0, number of booktitles ) excluding end point
@@ -614,8 +633,8 @@ public class SchoolWorld {
                     school.getComponent(TransformComponent.class).position.y,
                     x, y);
                     //x / PIXELS_TO_METERS, WORLD_HEIGHT - (y / PIXELS_TO_METERS));
-            //reset the cooldown timer
-            cooldown = 1;
+            //reset the bookCooldown timer
+            bookCooldown = 1;
         }
     }
 

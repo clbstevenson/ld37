@@ -31,10 +31,12 @@ public class LD37Game extends Game {
         Screen splashScreen = new SplashScreenWarmup(batch, screenDispatcher);
         Screen gameScreen = new GameScreenWarmup(this, batch, screenDispatcher);
         Screen schoolScreen = new SchoolGameScreen(this, batch, screenDispatcher);
+        Screen gameoverScreen = new GameOverScreen(this, batch, screenDispatcher);
         screenDispatcher.AddScreen(splashScreen);
         // Old GameScreen
         // screenDispatcher.AddScreen(gameScreen);
         screenDispatcher.AddScreen(schoolScreen);
+        screenDispatcher.AddScreen(gameoverScreen);
         setScreen(splashScreen);
     }
 
