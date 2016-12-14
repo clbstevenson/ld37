@@ -43,6 +43,7 @@ public class Assets {
 
         //am.load("sounds/song1.wav", MUSIC);
         am.load("sounds/music-fancy-shyster.wav", MUSIC);
+        am.load("sounds/music-fancy-shyster.ogg", MUSIC);
 
 
         // add the TextureAtlas of static sprites to the AssetManager
@@ -188,8 +189,8 @@ public class Assets {
 
     public static Music getMusic() {
         Gdx.app.log("Assets", "Retrieving fancy shyster music");
-        if(am.isLoaded("sounds/music-fancy-shyster.wav", Music.class)) {
-            return am.get("sounds/music-fancy-shyster.wav");
+        if(am.isLoaded("sounds/music-fancy-shyster.ogg", Music.class)) {
+            return am.get("sounds/music-fancy-shyster.ogg");
         } else return null;
     }
 

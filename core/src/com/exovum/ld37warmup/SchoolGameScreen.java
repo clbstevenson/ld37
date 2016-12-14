@@ -78,8 +78,8 @@ public class SchoolGameScreen extends ScreenAdapter {
         world.setContactListener(collisionSystem);
 
         // TODO: eventually remove these systems. they are just used for testing
-        engine.addSystem(new PhysicsDebugSystem(world, renderingSystem.getCamera()));
-        engine.addSystem(new UselessStateSwapSystem());
+        //engine.addSystem(new PhysicsDebugSystem(world, renderingSystem.getCamera()));
+        //engine.addSystem(new UselessStateSwapSystem());
 
         // DONE: changed to school world
         gameWorld.create();

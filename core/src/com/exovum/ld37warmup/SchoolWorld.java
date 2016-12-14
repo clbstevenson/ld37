@@ -139,11 +139,11 @@ public class SchoolWorld {
         generateBounds(screenInMeters.x + 10, 1f, 1f, screenInMeters.y);
         generateBounds(-10, 1f, 1f, screenInMeters.y);
 
-        healthEntity = generateTextWithFont("Missed Children: " + missedChildren + " / " + maxChildren,
-                WORLD_WIDTH - 7.75f, WORLD_HEIGHT - 2.75f, fontnameSubheader, Color.WHITE);
+        healthEntity = generateTextWithFont("Children: " + missedChildren + " / " + maxChildren,
+                WORLD_WIDTH - 6.25f, WORLD_HEIGHT - 2.75f, fontnameSubheader, Color.WHITE);
         //generateBoundsLine(WORLD_WIDTH  / 2 + 5, 0, WORLD_WIDTH / 2 + 5, WORLD_HEIGHT);
         pointsEntity = generateTextWithFont("Points " + points,
-                3.75f, WORLD_HEIGHT - 2.75f, fontnameSubheader, Color.WHITE);
+                5.5f, WORLD_HEIGHT - 2.75f, fontnameSubheader, Color.WHITE);
 
         pointsEntity.getComponent(FontComponent.class).glyph.setText(
                 pointsEntity.getComponent(FontComponent.class).font, "Points: " + points);
@@ -274,8 +274,8 @@ public class SchoolWorld {
         } else {
             if(healthEntity != null)
                 healthEntity.removeAll();
-            healthEntity = generateTextWithFont("Missed Children: " + missedChildren + " / " + maxChildren,
-                    WORLD_WIDTH - 7.75f, WORLD_HEIGHT - 2.75f, fontnameSubheader, Color.WHITE);
+            healthEntity = generateTextWithFont("Children: " + missedChildren + " / " + maxChildren,
+                    WORLD_WIDTH - 6.25f, WORLD_HEIGHT - 2.75f, fontnameSubheader, Color.WHITE);
         }
     }
 
