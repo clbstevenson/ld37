@@ -1,6 +1,7 @@
 package com.exovum.ld37warmup;
 
 import com.badlogic.ashley.core.Entity;
+import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
@@ -38,7 +39,6 @@ import static com.exovum.ld37warmup.components.BookComponent.BookTitle.getBookTi
 public class SchoolWorld {
 
 
-
     // PS: Use an abstract World class next time that supplies the base info
     // connecting SchoolWorld and GameWorld together for simplification
 
@@ -46,12 +46,12 @@ public class SchoolWorld {
         RUNNING, PAUSED, GAMEOVER, GAMEWON, UPGRADE
     }
 
-    public static final short ENT_SCHOOL            = 0x0001;  // 0b0000_0000_0000_0001
-    public static final short ENT_FRIENDLY_BOOK     = 0x0002;  // 0b0000_0000_0000_0010
-    public static final short ENT_ENEMY_BOOK        = 0x0004;  // 0b0000_0000_0000_0100
-    public static final short ENT_FRIENDLY_CHILD    = 0x0008;  // 0b0000_0000_0000_1000
-    public static final short ENT_ENEMY_CHILD       = 0x0010; // 0b0000_0000_0001_0000
-    public static final short ENT_BOUNDARY          = 0x0020;  // 0b0000_0000_0010_0000
+    public static final short ENT_SCHOOL = 0x0001;  // 0b0000_0000_0000_0001
+    public static final short ENT_FRIENDLY_BOOK = 0x0002;  // 0b0000_0000_0000_0010
+    public static final short ENT_ENEMY_BOOK = 0x0004;  // 0b0000_0000_0000_0100
+    public static final short ENT_FRIENDLY_CHILD = 0x0008;  // 0b0000_0000_0000_1000
+    public static final short ENT_ENEMY_CHILD = 0x0010; // 0b0000_0000_0001_0000
+    public static final short ENT_BOUNDARY = 0x0020;  // 0b0000_0000_0010_0000
 
     public static final short GROUP_SCHOOL = 1;
     public static final short GROUP_BOOK = -2;
@@ -83,11 +83,15 @@ public class SchoolWorld {
     // Entity for tracking and displaying points
     Entity pointsEntity;
 
+    private static final String fontnameHeader = "chawp32.fnt";
+    private static final String fontnameSubheader = "chawp18.fnt";
+
 
     Music music;
 
     int points;
     int missedChildren, maxChildren;
+
     public SchoolWorld(PooledEngine engine, World world) {
         this.engine = engine;
         this.physicsWorld = world;
@@ -110,9 +114,11 @@ public class SchoolWorld {
         childCooldown = 0f;
 
         music = Assets.getMusic();
-        if(music != null) {
+        if (music != null) {
+            Gdx.app.log("School World", "Start playing music");
             music.setVolume(0.25f);
             music.setLooping(true);
+            music.play();
         }
 
         // initially create a
@@ -133,17 +139,17 @@ public class SchoolWorld {
         generateBounds(screenInMeters.x + 10, 1f, 1f, screenInMeters.y);
         generateBounds(-10, 1f, 1f, screenInMeters.y);
 
-        healthEntity = generateTextWithFont("Escaped Children: " + missedChildren + " / " + maxChildren,
-                WORLD_WIDTH - 7, WORLD_HEIGHT-2, "candara20.fnt", Color.WHITE);
+        healthEntity = generateTextWithFont("Missed Children: " + missedChildren + " / " + maxChildren,
+                WORLD_WIDTH - 7.75f, WORLD_HEIGHT - 2.75f, fontnameSubheader, Color.WHITE);
         //generateBoundsLine(WORLD_WIDTH  / 2 + 5, 0, WORLD_WIDTH / 2 + 5, WORLD_HEIGHT);
         pointsEntity = generateTextWithFont("Points " + points,
-                3, WORLD_HEIGHT-2, "candara20.fnt", Color.WHITE);
+                3.75f, WORLD_HEIGHT - 2.75f, fontnameSubheader, Color.WHITE);
 
         pointsEntity.getComponent(FontComponent.class).glyph.setText(
                 pointsEntity.getComponent(FontComponent.class).font, "Points: " + points);
 
         generateTextWithFont("One Room Schoolhouse", WORLD_WIDTH / 2, WORLD_HEIGHT,
-                "candara36b.fnt", Color.WHITE);
+                fontnameHeader, Color.WHITE);
         //generateTextWithFont(BookComponent.getRandomQuote(BookTitle.MOCKING, random),
         //        WORLD_WIDTH / 2, WORLD_HEIGHT / 4, "candara20.fnt", Color.WHITE);//, FontComponent.TYPE.TEMP);
         //generateText("A Simple Text", 10f, 10f);//WORLD_WIDTH / 2, WORLD_HEIGHT - SchoolComponent.HEIGHT);
@@ -158,7 +164,7 @@ public class SchoolWorld {
     }
 
     public void update(float delta) {
-        if(!paused) {
+        if (!paused) {
             //Gdx.app.log("School World", "Updating school world and cooldowns");
             // '1' bookCooldown = 1 second. so don't set bookCooldown to 1000
             bookCooldown -= delta;
@@ -174,20 +180,29 @@ public class SchoolWorld {
         }
         //Gdx.app.log("School World", "Updating School World. bookCooldown: " + bookCooldown);
     }
+
     public void pause(boolean paused) {
         this.paused = paused;
-        if(paused)
+        if (paused)
             music.pause();
         else
             music.play();
+
     }
 
     /**
      * Resets the game world. Used if the game is over [lost or won]
      */
     public void reset() {
+        // Remove all the Box2D body entities
+        for (Entity e : engine.getEntitiesFor(Family.all(BodyComponent.class).get())) {
+            physicsWorld.destroyBody(e.getComponent(BodyComponent.class).body);
+        }
         // Remove all the entities from the engine
         engine.removeAllEntities();
+        engine.clearPools();
+        // reset the music
+        music.setPosition(0f);
         // reset points
         //missedChildren = 0;
         //points = 0;
@@ -221,9 +236,10 @@ public class SchoolWorld {
 
     public void processBookChildHit(Object data) {
         EntityData entityData = ((EntityData)data);
-        BodyComponent childBody = entityData.getFirst().getComponent(BodyComponent.class);
-        // add points based on velocity of child
-        addPoints((int)childBody.body.getLinearVelocity().x);
+        // entityData.getData(0) would be the ChildEntity. data(1) is BookEntity
+        BodyComponent childBody = entityData.getData(0).getComponent(BodyComponent.class);
+        // add points based on velocity of child: (child.vel.x + child.vel.y)
+        addPoints((int)childBody.body.getLinearVelocity().x + (int)childBody.body.getLinearVelocity().y);
         //addPoints(1);
 
         playSoundBookChild();
@@ -238,7 +254,7 @@ public class SchoolWorld {
         if(quoteEntity != null)
             quoteEntity.removeAll();
         quoteEntity = generateTextWithFont(getTextFromEntityData(entityData),
-                WORLD_WIDTH / 2 - 1 , 5, "candara16b.fnt", Color.BLACK);
+                WORLD_WIDTH / 2 - 1 , 5, "candara16b.fnt", Color.WHITE);
 
     }
 
@@ -250,16 +266,16 @@ public class SchoolWorld {
         }
         Gdx.app.log("School World", "Child-Boundary Hit. Lose points/health/something");
 
+        missedChildren++;
         if(missedChildren >= maxChildren) {
             // switch to gameover
             this.state = State.GAMEOVER;
             Gdx.app.log("School World", "Miissed too many children. State = GAMEOVER");
         } else {
-            missedChildren++;
             if(healthEntity != null)
                 healthEntity.removeAll();
-            healthEntity = generateTextWithFont("Escaped Children: " + missedChildren + " / " + maxChildren,
-                    WORLD_WIDTH - 7, WORLD_HEIGHT - 2, "candara20.fnt", Color.WHITE);
+            healthEntity = generateTextWithFont("Missed Children: " + missedChildren + " / " + maxChildren,
+                    WORLD_WIDTH - 7.75f, WORLD_HEIGHT - 2.75f, fontnameSubheader, Color.WHITE);
         }
     }
 

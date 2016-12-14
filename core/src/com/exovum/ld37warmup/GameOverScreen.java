@@ -25,6 +25,9 @@ public class GameOverScreen implements Screen {
     @Override
     public void show() {
         Gdx.app.log("Game Over Screen", "Switched to GameOverScreen");
+
+        Assets.getSoundByName("gameover.wav").play(0.5f);
+
         Gdx.input.setInputProcessor(new InputProcessor() {
             @Override
             public boolean keyDown(int keycode) {

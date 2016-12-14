@@ -41,6 +41,8 @@ public class SchoolGameScreen extends ScreenAdapter {
     private SpriteBatch batch;
     private IScreenDispatcher dispatcher; // TODO change this simple screen switcher or don't use it
 
+    private InputMultiplexer multiplexer;
+
     // font related items. glyphlayout makes it easier to draw and center fonts and other stuff probably
     // Font rendering should be processed as FontComponent so the ECS RenderingSystem can grab it
     private BitmapFont mediumFont;
@@ -88,8 +90,8 @@ public class SchoolGameScreen extends ScreenAdapter {
         //mediumFont = Assets.getMediumFont();
         glyphLayout = new GlyphLayout();
 
-        // Create all input devices
-        InputMultiplexer multiplexer = new InputMultiplexer();
+        // Create all input devices and add to the multiplexer
+        multiplexer = new InputMultiplexer();
         multiplexer.addProcessor(new SchoolInput(camera, gameWorld));
         // Set Gdx.input to track all the created input handlers
         Gdx.input.setInputProcessor(multiplexer);
@@ -159,9 +161,11 @@ public class SchoolGameScreen extends ScreenAdapter {
 
     @Override
     public void show() {
+        Gdx.app.log("School Game Screen", "Switched to SchoolGameScreen");
         paused = false;
         setEngineOn(true);
-        Gdx.app.log("School Game Screen", "Switched to SchoolGameScreen");
+        // Set Gdx.input to track all the created input handlers
+        Gdx.input.setInputProcessor(multiplexer);
     }
 
     @Override
